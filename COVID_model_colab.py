@@ -9,7 +9,7 @@ import pdb
 
 
 class CovidModel():
-    def __init__(self, path):
+    def __init__(self, path, decision):
         super(CovidModel, self).__init__()
 
         self.beta_max = gv.beta_before_sd  # max transmission rate
@@ -70,10 +70,12 @@ class CovidModel():
         self.h_val = gv.h_val
         self.rl_counter = 0                   # every time, when calculate immediate reward, counter will increment by 1
         self.cost_tst = gv.test  
-        self.op_ob = op.output_var(int(self.T_total/self.inv_dt) + 1, state = self.enter_state, cwd = path)
+ 
+        self.op_ob = op.output_var(int(self.T_total/self.inv_dt) + 1, state = self.enter_state, cwd = path, policy = decision)
 
-        self.reset_sim()                       # reset the simulation 
+       
         self.reset_rl()                        # reset rl 
+        self.reset_sim()                       # reset the simulation 
         
     def step(self, action_t, beta):
         # self.policy[self.t] = action_t  # record action at t time step
@@ -83,9 +85,7 @@ class CovidModel():
                                  
     def output_result(self):
         if self.t % self.inv_dt == 0: 
-            gv.prog_bar.next()
-            
-                
+            gv.prog_bar.next()               
             self.op_ob.time_step[self.d] = self.d     # timestep (day)
             #### if plot for one day
             indx_l = self.t - self.inv_dt + 1 # = self.t
@@ -101,13 +101,19 @@ class CovidModel():
             self.op_ob.num_trac[self.d] = np.sum(self.num_trac_test[indx_l: indx_u]) 
             self.op_ob.num_hop_tst[self.d] =  np.sum(self.num_hosp_test[indx_l: indx_u])
 
-            if self.rl_counter > 0:
-                self.op_ob.VSL_plot[self.d] = -1 * (np.sum(self.Final_VSL[indx_l: indx_u]))    # VSL at timestep t
-                self.op_ob.SAL_plot[self.d] = -1 * (np.sum(self.Final_SAL[indx_l: indx_u]))    # SAL at timestep t        
+            self.op_ob.VSL_plot[self.d] =  (np.sum(self.Final_VSL[indx_l: indx_u]))    # VSL at timestep t
+            self.op_ob.SAL_plot[self.d] =  (np.sum(self.Final_SAL[indx_l: indx_u]))    # SAL at timestep t        
+            self.op_ob.unemployment[self.d] = self.rate_unemploy[self.t]
+            self.op_ob.univ_test_cost[self.d] =  (np.sum(self.cost_test_u[indx_l: indx_u])) 
+            self.op_ob.trac_test_cost[self.d] =  (np.sum(self.cost_test_c[indx_l: indx_u])) 
+            self.op_ob.bse_test_cost[self.d] =  (np.sum(self.cost_test_b[indx_l: indx_u]))
+            """if self.rl_counter > 0:
+                self.op_ob.VSL_plot[self.d] =  (np.sum(self.Final_VSL[indx_l: indx_u]))    # VSL at timestep t
+                self.op_ob.SAL_plot[self.d] =  (np.sum(self.Final_SAL[indx_l: indx_u]))    # SAL at timestep t        
                 self.op_ob.unemployment[self.d] = self.rate_unemploy[self.t]
-                self.op_ob.univ_test_cost[self.d] = -1 * (np.sum(self.cost_test_u[indx_l: indx_u])) 
-                self.op_ob.trac_test_cost[self.d] = -1 * (np.sum(self.cost_test_c[indx_l: indx_u])) 
-                self.op_ob.bse_test_cost[self.d] = -1 * (np.sum(self.cost_test_b[indx_l: indx_u])) 
+                self.op_ob.univ_test_cost[self.d] =  (np.sum(self.cost_test_u[indx_l: indx_u])) 
+                self.op_ob.trac_test_cost[self.d] =  (np.sum(self.cost_test_c[indx_l: indx_u])) 
+                self.op_ob.bse_test_cost[self.d] =  (np.sum(self.cost_test_b[indx_l: indx_u])) """
             self.d += 1
             
            
@@ -116,8 +122,8 @@ class CovidModel():
     # Function to calculate immediate reward when doing RL
     def calc_imm_reward(self, action_t):
         a_sd = action_t[0]
-        a_c = min(1, action_t[1]/np.sum(self.pop_dist_sim[(self.t - 1),:,:,1:4]))
-        a_u = min(1, action_t[2]/np.sum(self.pop_dist_sim[(self.t - 1),:,:,0:4]))
+        a_c = min(1, action_t[1]/np.sum(self.pop_dist_sim[(self.t - 1),:,:,1:4])//self.inv_dt)
+        a_u = min(1, action_t[2]/np.sum(self.pop_dist_sim[(self.t - 1),:,:,0:4])/self.inv_dt)
 
         self.rl_counter += 1
     
@@ -141,10 +147,10 @@ class CovidModel():
         num_test_u  = np.sum(self.pop_dist_sim[(self.t - 1),:,:,0:4]) # S + L + E + I
         num_test_c = np.sum(self.pop_dist_sim[(self.t - 1),:,:,1:4])  # L + E + I
         num_test_b = np.sum(self.pop_dist_sim[(self.t - 1),:,:,3:4]) # I
-        self.cost_test_u[self.t] =  a_u *  num_test_u * self.cost_tst[0]
-        self.cost_test_c[self.t] = (1 - a_u)* a_c * num_test_c * self.cost_tst[1]
-        self.cost_test_b[self.t] = (1 - (a_u +(1-a_u)*a_c))* self.a_b * num_test_b
-        self.Final_TST[self.t] = self.cost_test_u[self.t] + self.cost_test_c[self.t] + self.cost_test_b[self.t]/ 1000000 # in million dollars
+        self.cost_test_u[self.t] =  a_u *  num_test_u * self.cost_tst[0]/ 1000000
+        self.cost_test_c[self.t] = (1 - a_u)* a_c * num_test_c * self.cost_tst[1] / 1000000
+        self.cost_test_b[self.t] = (1 - (a_u +(1-a_u)*a_c)) * self.a_b * num_test_b / 1000000
+        self.Final_TST[self.t] = self.cost_test_u[self.t] + self.cost_test_c[self.t] + self.cost_test_b[self.t] # in million dollars
         
         # calculate immeidate reward 
         self.imm_reward[self.t] = -1 * (self.Final_VSL[self.t]  + self.Final_SAL[self.t] + self.Final_TST[self.t])
@@ -169,8 +175,8 @@ class CovidModel():
     # Function to calculate transition rates (only for the rates that won't change by risk or age)
     def set_rate_array(self, action_t, beta):
         a_sd = action_t[0]
-        a_c = min(1, action_t[1]/np.sum(self.pop_dist_sim[(self.t - 1),:,:,1:4]))
-        a_u = min(1, action_t[2]/np.sum(self.pop_dist_sim[(self.t - 1),:,:,0:4]))
+        a_c = min(1, action_t[1]/np.sum(self.pop_dist_sim[(self.t - 1),:,:,1:4])/self.inv_dt)
+        a_u = min(1, action_t[2]/np.sum(self.pop_dist_sim[(self.t - 1),:,:,0:4])/self.inv_dt)
 
         self.rate_array[0] = ((1 - a_sd)*(beta * np.sum(self.pop_dist_sim[(self.t - 1),:,:,2:4])))/(np.sum(self.pop_dist_sim[(self.t - 1), :,:,0:9]))
         
@@ -202,8 +208,8 @@ class CovidModel():
     #S	L	E	I	Q_L	Q_E	Q_I	H	R	D compartments
     def simulation_base(self, action_t, beta):
         a_sd = action_t[0]
-        a_c = min(1, action_t[1]/np.sum(self.pop_dist_sim[(self.t - 1),:,:,1:4]))
-        a_u = min(1, action_t[2]/np.sum(self.pop_dist_sim[(self.t - 1),:,:,0:4]))
+        a_c = min(1, action_t[1]/np.sum(self.pop_dist_sim[(self.t - 1),:,:,1:4])/self.inv_dt)
+        a_u = min(1, action_t[2]/np.sum(self.pop_dist_sim[(self.t - 1),:,:,0:4])/self.inv_dt)
 
         # Calculate transition rate that won't change during the for loop
         self.set_rate_array(action_t, beta)
@@ -304,18 +310,14 @@ class CovidModel():
         t = 1
         while t <= (self.days_of_simul_pre_sd * self.inv_dt):
             self.t += 1
-            self.simulation_base(action_t = [0, 0, 0], beta = self.beta_max)
-            self.output_result()
+            self.step(action_t = [0, 0, 0], beta = self.beta_max)
             t += 1
-
 
         t = 1
         while t <=  (self.days_of_simul_post_sd * self.inv_dt):
             self.t += 1
-            self.simulation_base(action_t = [0, 0, 0], beta = self.beta_min)
-            self.output_result()  
+            self.step(action_t = [0, 0, 0], beta = self.beta_min)
             t += 1
-
                
     def reset_sim(self):
         # print("reset_sim begin")
@@ -352,7 +354,11 @@ class CovidModel():
         self.t = 0
 
        
-        self.output_result()      # record day 0                                           
+        self.output_result()      # record day 0   
+
+        self.sim_bf_rl_dry_run()  # rl dry run until current data
+        self.decison_making_day = self.t  
+        self.rate_unemploy[self.t] = gv.init_unemploy        # assign initial unemployment rate                                   
         # print("reset_sim end")
 
     def reset_rl(self):
@@ -366,10 +372,8 @@ class CovidModel():
         self.cost_test_c = np.zeros(self.T_total + 1)
         self.cost_test_b = np.zeros(self.T_total + 1)
         self.rate_unemploy = np.zeros(self.T_total + 1)
-        # self.policy = np.zeros((self.T_total + 1, 3))
-        self.sim_bf_rl_dry_run()                        # rl dry run until current data
-        self.decison_making_day = self.t
-        self.rate_unemploy[self.t] = gv.init_unemploy        # assign initial unemployment rate
+        self.policy = np.zeros((self.T_total + 1, 3))
+   
         # print("reset rl end")
 
         
@@ -384,17 +388,20 @@ def setup_COVID_sim(state, path):
 
 def run_COVID_sim(decision, path, beta_u, verbose = 'Y', write = 'N'):
 
-    sample_model = CovidModel(path)
+    sample_model = CovidModel(path, decision)
+    i = 0
+    d_m = decision[i]
     while sample_model.t < sample_model.T_total:
         # print("##### step begin #####")
         # print('The code is running')
         sample_model.t += 1 
         # print('t', sample_model.t)
-        day = int(sample_model.rl_counter/sample_model.inv_dt)
-        # print('day', day)
-        # print('d', sample_model.d)
-        # print('rl_counter', sample_model.rl_counter)
-        sample_model.step(action_t = decision[day-1], beta = beta_u)
+        if i % sample_model.inv_dt == 0:
+            d_m = decision[i//sample_model.inv_dt]
+        sample_model.step(action_t = d_m, beta = beta_u)
+        i += 1
+        
+        
         # print("##### step end ##### \n")
 
     gv.prog_bar.finish()
@@ -403,58 +410,58 @@ def run_COVID_sim(decision, path, beta_u, verbose = 'Y', write = 'N'):
     df2= sample_model.op_ob.plot_decision_output_2(gv.acutal_unemp)
     df3 = sample_model.op_ob.plot_decision_output_3()
     df4 = sample_model.op_ob.plot_cum_output(gv.actual_data)
+    df5 = sample_model.op_ob.plot_decison()
     # # sample_model.op_ob.plot_time_output()
  
-    # if write == 'Y':
-    #     sample_model.op_ob.write_output(df1, df2, df3, df4)
-    # else:
-    #     pass
+    if write == 'Y':
+        sample_model.op_ob.write_output(df1, df2, df3, df4, df5)
+    else:
+        pass
     print('Finished the run')
 
 if  __name__ == "__main__":
     path = os.getcwd()
     state = 'NY' # default is New York
-    state = input('insert two letter abbreviation for the State that you want to model (e.g.: NY for New York):\n')  # insert two letter abbreviation state that you want to model
+    state = input('insert two letter abbreviation for the State that you want to model (e.g.: NY for New York): ')  # insert two letter abbreviation state that you want to model
     setup_COVID_sim(state, path) 
-    print('Do you want to test a decision or use status quo?')
-    print('(status quo assumes social distancing measures as of May 3rd are maintained for the next 52 weeks, no contact tracing and testng, and no universal testing are conducted)\n')
+    print('Do you want to test a decision (Y or N)?\n')
+    print('If you choose N (No), it will assume social distancing measures as of May 3rd are maintained for the next 52 weeks, , and testing is only through baseline symptom-based testing, i.e., no contact tracing and testing, and no universal testing\n')
     bol_ = 'N'
-    bol_ = input('Enter Y or N (e.g.: Y ):')
+    bol_ = input('Enter Y or N: ')
     if bol_ == 'Y':
         a_sd_range =  1 - (gv.beta_after_sd/gv.beta_before_sd)
         print("Enter decision choice for 'percent reduction in contacts' for weeks 1 through 52 as Start week1, end week1, decision1, Start week2, end week2, decision2,……. ")
         print("Example 1: if you want week 1 to have 50 percent of reduction, and weeks 2 to 52 to have 30 percent of reduction, enter 1,1,0.5,2,52,0.3")
-        print("Example 2: if you to have weeks 1 to 5 to have 50 percent of reduction, weeks 6 to 10 to have 30 percent of reduction, and weeks 11 to 52 as 0 percent ofreduction, enter 1,5,0.5,6,10,0.3,11,52,0")
+        print("Example 2: if you to have weeks 1 to 5 to have 50 percent of reduction, weeks 6 to 10 to have 30 percent of reduction, and weeks 11 to 52 as 0 percent ofreduction, enter 1,5,0.5,6,10,0.3,11,52,0\n")
         print("NOTE: The maximum contact reduction for this state is " + str(int(a_sd_range*100)) +'%')
-        a_sd_str = input("Enter value here:")
+        a_sd_str = input("Enter value here: ")
         print("\n")
         print("Enter decision choice for 'number of testing that can be done through contact tracing' for weeks 1 through 52 as Start week1, end week1, decision1, Start week2, end week2, decision2 ….")
         print("Example 1: If you can do 100 tests per day for weeks 1 to 10, and 1000 tests per day for weeks 11 to 52, enter 1,10,100,11,52,1000")
         print("Example 2: If you can do 100 tests per day for week 1, 200 tests per day for week 2, and 1000 tests per day for weeks 3 to 52, enter 1,1,100,2,2,200,3,52,1000")
-        a_c_str = input("Enter value here:")
+        a_c_str = input("Enter value here: ")
         print("\n")
         print("Enter decision choice for 'number of testing that can be done through universal testing of population' for weeks 1 through 52 as Start week1, end week1, decision1, Start week2, end week2, decision2…… ")
         print("Example 1: If you can do 100 tests per day for weeks 1 to 10, and 1000 tests per day for weeks 11 to 52, enter 1,10,100,11,52,1000")
         print("Example 2: If you can do 100 tests per day for week 1, 200 tests per day for week 2, and 1000 tests per day for weeks 3 to 52, enter 1,1,100,2,2,200,3,52,1000")
-        a_u_str = input("Enter value here:")
+        a_u_str = input("Enter value here: ")
         print("\n")
-        decision = gv.get_decisions(a_sd_str,a_c_str,a_u_str,gv.T_max)
+        gv.decision = gv.get_decisions(a_sd_str,a_c_str,a_u_str,gv.T_max)
         beta_u = gv.beta_before_sd
-        print('decision',decision)
+        # print('decision',decision)
     else:
        
-        decision = gv.format_year(gv.decision_week, gv.T_max)
+        gv.decision = gv.format_year(gv.decision_week, gv.T_max)
         beta_u = gv.beta_after_sd  # assume keep social distancing 
-        print('decision',decision)
-
-    print("\n")
-    print("NOTE: plots are automatically saved in the folder\n")
+        # print('decision',decision)
+ 
+    print("NOTE: plots are automatically saved in the folder")
     print('Do you want to write results into excel file?')
     print('NOTE: writing it takes a longer time to process\n')
     write_ = 'N'
-    write_ = input('Enter Y or N (e.g.: Y ):\n')
-    run_COVID_sim(decision, path, beta_u, write = write_)
-    run_COVID_sim(decision, path, beta_u)
+    write_ = input('Enter Y or N (e.g.: Y ): ')
+    
+    run_COVID_sim(path = path, beta_u = beta_u, decision = gv.decision, write = write_)
 
     
     

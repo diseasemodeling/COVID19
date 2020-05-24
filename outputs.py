@@ -4,10 +4,11 @@ from pylab import rcParams
 import pdb
 import global_var as gv
 import pandas as pd
+from matplotlib.ticker import FuncFormatter
 
 class output_var:
 
-    def __init__(self, sizeofrun, state, cwd):
+    def __init__(self, sizeofrun, state, cwd, policy):
         self.time_step = np.zeros(sizeofrun)
         self.action_plot = np.zeros(sizeofrun)
         self.a_sd_plot = np.zeros(sizeofrun)
@@ -28,8 +29,12 @@ class output_var:
         self.num_trac = np.zeros(sizeofrun)
         self.num_hop_tst =  np.zeros(sizeofrun)
         self.start_d, self.sd_d, self.decision_d  = gv.read_date(state, cwd)
+        self.policy_plot = policy
 
-    def write_output(self, df1, df2, df3, df4, choice = 1):
+        self.dpi =100
+        
+
+    def write_output(self, df1, df2, df3, df4, df5, choice = 1):
         if choice == 1:
             writer = pd.ExcelWriter('final_result.xlsx', engine = 'xlsxwriter')
 
@@ -37,6 +42,8 @@ class output_var:
             df2.to_excel(writer, sheet_name = 'Unemployment')
             df3.to_excel(writer, sheet_name = 'Testing')
             df4.to_excel(writer, sheet_name = 'Summary')
+            df5.to_excel(writer, sheet_name = 'Decision choice')
+            
             writer.save()
         else:
             df_data = np.array( [self.num_inf_plot, self.num_hosp_plot, self.num_dead_plot, self.VSL_plot, self.SAL_plot, \
@@ -57,26 +64,29 @@ class output_var:
         df_data = np.array([self.VSL_plot, self.num_dead_plot])
         df_name = ['Value of statistical life-year (VSL) loss', 'Number of deaths']
         df = pd.DataFrame(data = df_data.T, index = pd.date_range(start= self.start_d, periods= df_data.shape[1]),columns = df_name)
-        fig, ax = plt.subplots(2, 1)
-        df.plot(y = 'Value of statistical life-year (VSL) loss', title = 'Value of statistical life-year (VSL) loss', \
-                use_index = True, ax = ax[0], legend = False, fontsize = 10)
-        ax[0].set_ylabel("Million dollars")
-        df.plot(y = 'Number of deaths', title = 'Number of new deaths', use_index = True, ax = ax[1], \
-                legend = False, fontsize = 10, color ='r')
-        plt.subplots_adjust(hspace = 0.5)
-        # plt.show()
-        bbox = dict(boxstyle="round", fc="0.8")
         
-        arrowprops = dict(arrowstyle = "->",connectionstyle = "angle,angleA=-20,angleB=90,rad=10")
+        ### plot figure: number of deaths VS vsl loss 
+        fig, ax = plt.subplots(2, 1)
+        df.plot(y = 'Number of deaths', title = 'Number of new deaths', use_index = True, ax = ax[0], \
+                legend = False, fontsize = 10, color ='r')
+        df.plot(y = 'Value of statistical life-year (VSL) loss', title = 'Value of statistical life-year (VSL) loss', \
+                use_index = True, ax = ax[1], legend = False, fontsize = 10)
+        ax[1].set_ylabel("Million dollars")
+        plt.subplots_adjust(hspace = 0.5)
+
+        # create an arrow
+        bbox = dict(boxstyle="round", fc="0.8")
+        arrowprops = dict(arrowstyle = "->",connectionstyle = "angle,angleA=0,angleB=90,rad=5")
         offset = 72
         
-        ax[0].annotate('Start of decision making',(self.decision_d,0),xytext=(0.5*offset, -0.5*offset), \
+        y2 = df.loc[self.decision_d]['Value of statistical life-year (VSL) loss']
+        ax[1].annotate('Start of decision making',(self.decision_d,y2),xytext=(0.5*offset, 0.3*offset), \
           textcoords='offset points',bbox=bbox, arrowprops=arrowprops)
-        
+
         y1 = df.loc[self.decision_d]['Number of deaths']
-        ax[1].annotate('Start of decision making',(self.decision_d,y1),xytext=(0.5*offset, 0.3*offset), \
+        ax[0].annotate('Start of decision making',(self.decision_d,y1),xytext=(0.5*offset, 0.3*offset), \
           textcoords='offset points',bbox=bbox, arrowprops=arrowprops)
-        plt.savefig('1.png',dpi = 300)
+        plt.savefig('1.png',dpi = self.dpi)
         plt.close()
         
         return df
@@ -87,57 +97,77 @@ class output_var:
         plt.style.use('seaborn')
         date = pd.date_range(start= self.start_d, periods= self.unemployment.shape[0])
         df_data = np.array([date, self.SAL_plot, self.unemployment])
-        df_name = ['Date', 'Wage loss', 'Projected unemployment rate']
+        df_name = ['Date', 'Wage loss', 'Unemployment rate under assumption']
         df = pd.DataFrame(data = df_data.T, index = None, columns = df_name)
+        
+        # plo
         fig, ax = plt.subplots(2, 1)
-        df.plot(x = 'Date', y = 'Wage loss', title = 'Wage loss', \
-                use_index = True, ax = ax[0], legend = False, fontsize = 10)
         
-        ax[0].set_ylabel("Million dollars")
         bbox = dict(boxstyle="round", fc="0.8")
-        arrowprops = dict(arrowstyle = "->",connectionstyle = "angle,angleA=-20,angleB=70,rad=5")
+        arrowprops = dict(arrowstyle = "->",connectionstyle = "angle,angleA=0,angleB=70,rad=5")
         offset = 72
-        
-        ax[0].annotate('Start of decision making',(self.decision_d,0),xytext=(0.5*offset, -0.5*offset), \
-          textcoords='offset points',bbox=bbox, arrowprops=arrowprops)
-        df.plot(x = 'Date', y = 'Projected unemployment rate', title = 'Unemployment rate',\
-                use_index = True, ax = ax[1], fontsize = 10, color ='r')
-       
+        day = pd.Timestamp(self.decision_d)
+        df.loc[df['Date'] >day].plot(x = 'Date', y = 'Unemployment rate under assumption', \
+                  use_index = True, ax = ax[0], fontsize = 10, marker= '.', linestyle = '--')
+
         actual_unemp.loc[actual_unemp['Date'] >= self.start_d].plot(x = 'Date',\
-                        y = 'Actual unemployment rate', ax = ax[1], fontsize = 10,kind = 'scatter',label = 'Actual unemployment rate')
+                        y = 'Actual unemployment rate', ax = ax[0], fontsize = 10,marker= '.',\
+                        label = 'Actual unemployment rate')
+        ax[0].set_title('Unemployment rate \n assume: unemployment rate under chosen social distancing (contact reduction)')
         
+        ax[0].annotate('Start of decision making',(self.decision_d,0),xytext=(0.5*offset, 0.5*offset), \
+                        textcoords='offset points',bbox=bbox, arrowprops=arrowprops)
+       
+        ax[0].set_xlim(left =pd.Timestamp(self.start_d) )
+        ax[0].set_ylabel('Rate')
+        df.loc[df['Date']> day].plot(x = 'Date', y = 'Wage loss', title = 'Wage loss', \
+                                      use_index = True, ax = ax[1], legend = False, fontsize = 10,\
+                                      marker= '.', linestyle = '--')
         ax[1].annotate('Start of decision making',(self.decision_d,0),xytext=(0.5*offset, 0.5*offset), \
-          textcoords='offset points',bbox=bbox, arrowprops=arrowprops)
+                        textcoords='offset points',bbox=bbox, arrowprops=arrowprops)
+        ax[1].set_ylabel("Million dollars")
+        ax[1].set_xlim(left =pd.Timestamp(self.start_d))
+
         plt.subplots_adjust(hspace = 0.5)
-        plt.savefig('2.png',dpi = 300)
+        plt.savefig('2.png',dpi = self.dpi)
         plt.close()
         df = df.set_index('Date')
         return df
         
 
-      
     def plot_decision_output_3(self):
         plt.style.use('seaborn')
         fig, ax = plt.subplots(2, 1)
         df_data = np.array([self.univ_test_cost, self.trac_test_cost, self.bse_test_cost,\
                             self.num_trac, self.num_base, self.num_uni])
-        df_name = ['cost of universal testing', 'cost of contact tracing', 'cost of base testing',\
-                   'by contact tracing', 'by base tesing', 'by universal testing']
+        df_name = ['cost of universal testing', 'cost of contact tracing', 'cost of symptom-based testing',\
+                   'by contact tracing', 'by symptom-based testing', 'by universal testing']
         df = pd.DataFrame(data = df_data.T, index = pd.date_range(start= self.start_d, \
                           periods= df_data.shape[1]), columns = df_name)
         
         df.loc[self.decision_d:].plot(y = 'cost of universal testing', use_index = True, ax = ax[0], fontsize = 10)
         df.loc[self.decision_d:].plot(y = 'cost of contact tracing', use_index = True, ax = ax[0], fontsize = 10)
-        df.loc[self.decision_d:].plot(y = 'cost of base testing', use_index = True, ax = ax[0], fontsize = 10)
+        df.plot(y = 'cost of symptom-based testing', use_index = True, ax = ax[0], fontsize = 10)
         ax[0].set_ylabel("Million dollars")
         ax[0].set_title("Cost of testing by type")
+        ax[0].set_xlim(left = pd.Timestamp(self.start_d))
 
         df.loc[self.decision_d:].plot(y = 'by universal testing', use_index = True, ax = ax[1], fontsize = 10)
         df.loc[self.decision_d:].plot(y = 'by contact tracing', use_index = True, ax = ax[1], fontsize = 10)
-        df.loc[self.decision_d:].plot(y = 'by base tesing', use_index = True, ax = ax[1], fontsize = 10)
+        df.plot(y = 'by symptom-based testing', use_index = True, ax = ax[1], fontsize = 10)
         ax[1].set_title("Number of new diagnosis by testing type")
+        ax[1].set_xlim(left = pd.Timestamp(self.start_d))
+
+        bbox = dict(boxstyle="round", fc="0.8")
+        arrowprops = dict(arrowstyle = "->",connectionstyle = "angle,angleA=0,angleB=70,rad=5")
+        offset = 72
+        ax[0].annotate('Start of decision making',(self.decision_d,0),xytext=(0.5*offset, 0.5*offset), \
+                        textcoords='offset points',bbox=bbox, arrowprops=arrowprops)
+        ax[1].annotate('Start of decision making',(self.decision_d,0),xytext=(0.5*offset, 0.5*offset), \
+                        textcoords='offset points',bbox=bbox, arrowprops=arrowprops)
+
         plt.subplots_adjust(hspace = 0.5, wspace = 0.5)
-        plt.savefig('3.png',dpi = 300)
+        plt.savefig('3.png',dpi = self.dpi)
         plt.close()
         return df
 
@@ -153,24 +183,51 @@ class output_var:
         fig, ax = plt.subplots()
         df.plot(x = 'date', y = 'projected cumulative diagnosis', fontsize = 10, ax = ax)
         actual_data.plot(x = 'date', y = 'actual cumulative diagnosis', fontsize = 10, ax = ax)
-        plt.savefig('4.png',dpi = 300)
+        plt.title("Cumulative diagnosis over time")
+        plt.savefig('4.png',dpi = self.dpi)
         plt.close()
 
         fig1, ax1 = plt.subplots()
         df.plot(x = 'date', y = 'projected cumulative deaths', fontsize = 10, ax = ax1)
         actual_data.plot(x = 'date', y = 'actual cumulative deaths', fontsize = 10, ax = ax1)
-        plt.savefig('5.png',dpi = 300)
+        plt.title("Cumulative deaths over time")
+        plt.savefig('5.png',dpi = self.dpi)
         plt.close()
 
         fig2, ax2 = plt.subplots()
         df.plot(x = 'date', y = 'projected cumulative hospitalized', fontsize = 10, ax = ax2)
         actual_data.plot(x = 'date', y = 'actual cumulative hospitalized', fontsize = 10, ax = ax2)
-        plt.savefig('6.png',dpi = 300)
+        plt.title("Cumulative hospitalizations over time")
+        plt.savefig('6.png',dpi = self.dpi)
         plt.close()
        
 
         df = df.set_index('date')
         return df
+
+    def plot_decison(self):
+      plt.style.use('seaborn')
+      date = pd.date_range(start= self.sd_d, periods= self.policy_plot.shape[0])
+      fig, ax = plt.subplots(2, 1)
+      df = pd.DataFrame(data = self.policy_plot, index = date, columns = ['Proportion of reduction in contacts',\
+                        'Number of test through contact tracing per day', 'Number of test through universal testing per day'])
+      df.plot(y ='Proportion of reduction in contacts', use_index = True, fontsize = 10, marker='.', ax = ax[0], c = 'k')
+      df.plot(y ='Number of test through contact tracing per day', use_index = True, fontsize = 10, marker='.',ax = ax[1])
+      df.plot(y ='Number of test through universal testing per day', use_index = True, fontsize = 10, marker='.', ax = ax[1])
+
+      ax[0].set_xlim(left = pd.Timestamp(self.start_d))
+      ax[1].set_xlim(left = pd.Timestamp(self.start_d))
+      ax[0].yaxis.set_major_formatter(FuncFormatter(lambda y, _: '{:.0%}'.format(y))) 
+      ax[0].set_ylabel('Proportion')
+      ax[1].set_ylabel('Number of test')
+      fig.suptitle('Decision choice since May 3rd')
+
+      plt.savefig('7.png',dpi = self.dpi)
+      plt.close()
+      
+      return df
+
+
 
     """def plot_time_output(self):
         plt.style.use('seaborn')
