@@ -434,7 +434,7 @@ if  __name__ == "__main__":
     print('\n')
     if bol_ == 'Y':
         a_sd_range =  1 - (gv.beta_after_sd/gv.beta_before_sd)
-        print("Enter decision choice for 'percent reduction in contacts as compared to a normal pre-COVID situation' "\
+        print("Enter decision choice for social distancing as 'percent reduction in contacts compared to a normal pre-COVID situation' "\
               "for weeks 1 through 52 as Start week1," \
               'end week1, decision1, Start week2, end week2, decision2,…….\n')
 
