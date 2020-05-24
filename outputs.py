@@ -97,7 +97,7 @@ class output_var:
         plt.style.use('seaborn')
         date = pd.date_range(start= self.start_d, periods= self.unemployment.shape[0])
         df_data = np.array([date, self.SAL_plot, self.unemployment])
-        df_name = ['Date', 'Wage loss', 'Unemployment rate under assumption']
+        df_name = ['Date', 'Wage loss', 'Assumption under selected social distancing']
         df = pd.DataFrame(data = df_data.T, index = None, columns = df_name)
         
         # plo
@@ -107,13 +107,13 @@ class output_var:
         arrowprops = dict(arrowstyle = "->",connectionstyle = "angle,angleA=0,angleB=70,rad=5")
         offset = 72
         day = pd.Timestamp(self.decision_d)
-        df.loc[df['Date'] >day].plot(x = 'Date', y = 'Unemployment rate under assumption', \
+        df.loc[df['Date'] >day].plot(x = 'Date', y = 'Assumption under selected social distancing', \
                   use_index = True, ax = ax[0], fontsize = 10, marker= '.', linestyle = '--')
 
         actual_unemp.loc[actual_unemp['Date'] >= self.start_d].plot(x = 'Date',\
                         y = 'Actual unemployment rate', ax = ax[0], fontsize = 10,marker= '.',\
                         label = 'Actual unemployment rate')
-        ax[0].set_title('Unemployment rate \n assume: unemployment rate under chosen social distancing (contact reduction)')
+        ax[0].set_title('Unemployment rate \n (Assumption: Assumption for unemployment rate under selected social distancing)')
         
         ax[0].annotate('Start of decision making',(self.decision_d,0),xytext=(0.5*offset, 0.5*offset), \
                         textcoords='offset points',bbox=bbox, arrowprops=arrowprops)
@@ -206,26 +206,33 @@ class output_var:
         return df
 
     def plot_decison(self):
-      plt.style.use('seaborn')
-      date = pd.date_range(start= self.sd_d, periods= self.policy_plot.shape[0])
-      fig, ax = plt.subplots(2, 1)
-      df = pd.DataFrame(data = self.policy_plot, index = date, columns = ['Proportion of reduction in contacts',\
-                        'Number of test through contact tracing per day', 'Number of test through universal testing per day'])
-      df.plot(y ='Proportion of reduction in contacts', use_index = True, fontsize = 10, marker='.', ax = ax[0], c = 'k')
-      df.plot(y ='Number of test through contact tracing per day', use_index = True, fontsize = 10, marker='.',ax = ax[1])
-      df.plot(y ='Number of test through universal testing per day', use_index = True, fontsize = 10, marker='.', ax = ax[1])
+        plt.style.use('seaborn')
+        date = pd.date_range(start= self.sd_d, periods= self.policy_plot.shape[0])
+        fig, ax = plt.subplots(2, 1)
+        df = pd.DataFrame(data = self.policy_plot, index = date, columns = ['Percent reduction in contacts through social distancing',\
+                        'Testing capacity – maximum tests per day through contact tracing', \
+                        'Testing capacity – maximum tests per day through universal testing'])
+        df.plot(y ='Percent reduction in contacts through social distancing', \
+               label = 'User entered decision choice for: \nPercent reduction in contacts through social distancing', \
+               use_index = True, fontsize = 10, marker='.', ax = ax[0], c = 'k')
+        df.plot(y ='Testing capacity – maximum tests per day through contact tracing', \
+               label = 'User entered decision choice for: \nTesting capacity – maximum tests per day through contact tracing', \
+               use_index = True, fontsize = 10, marker='.',ax = ax[1])
+        df.plot(y ='Testing capacity – maximum tests per day through universal testing', \
+               label = 'User entered decision choice for: \nTesting capacity – maximum tests per day through universal testing', \
+               use_index = True, fontsize = 10, marker='.',ax = ax[1])
+               
+        ax[0].set_xlim(left = pd.Timestamp(self.start_d))
+        ax[1].set_xlim(left = pd.Timestamp(self.start_d))
+        ax[0].yaxis.set_major_formatter(FuncFormatter(lambda y, _: '{:.0%}'.format(y))) 
+        ax[0].set_ylabel('Proportion')
+        ax[1].set_ylabel('Number of test')
+        fig.suptitle('User entered decision choice')
 
-      ax[0].set_xlim(left = pd.Timestamp(self.start_d))
-      ax[1].set_xlim(left = pd.Timestamp(self.start_d))
-      ax[0].yaxis.set_major_formatter(FuncFormatter(lambda y, _: '{:.0%}'.format(y))) 
-      ax[0].set_ylabel('Proportion')
-      ax[1].set_ylabel('Number of test')
-      fig.suptitle('Decision choice since May 3rd')
-
-      plt.savefig('7.png',dpi = self.dpi)
-      plt.close()
+        plt.savefig('7.png',dpi = self.dpi)
+        plt.close()
       
-      return df
+        return df
 
 
 

@@ -425,7 +425,7 @@ if  __name__ == "__main__":
     state = input('insert two letter abbreviation for the State that you want to model (e.g.: NY for New York): ')  # insert two letter abbreviation state that you want to model
     setup_COVID_sim(state, path) 
     print('Do you want to test a decision (Y or N)?\n')
-    print('If you choose N (No), it will assume social distancing measures'\
+    print('If you choose N (No), it will assume social distancing measures' \
           'as of May 3rd are maintained for the next 52 weeks,'\
           'and testing is only through baseline symptom-based testing, '\
           'i.e., no contact tracing and testing, and no universal testing\n')
@@ -433,29 +433,37 @@ if  __name__ == "__main__":
     bol_ = input('Enter Y or N: ')
     if bol_ == 'Y':
         a_sd_range =  1 - (gv.beta_after_sd/gv.beta_before_sd)
-        print("Enter decision choice for 'percent reduction in contacts' for weeks 1 through 52 as Start week1," \
-              'end week1, decision1, Start week2, end week2, decision2,……. ')
-        print('Example 1: if you want week 1 to have 50 percent of reduction,' \
+        print("Enter decision choice for 'percent reduction in contacts as compared to a normal pre-COVID situation' "\
+              "for weeks 1 through 52 as Start week1," \
+              'end week1, decision1, Start week2, end week2, decision2,…….')
+
+        print('Example 1: if you want week 1 to have 50 percent of reduction, '\
               'and weeks 2 to 52 to have 30 percent of reduction, enter 1,1,0.5,2,52,0.3')
-        print('Example 2: if you to have weeks 1 to 5 to have 50 percent of reduction, '\
-              'weeks 6 to 10 to have 30 percent of reduction, and weeks 11 to 52 as 0 percent ofreduction,'\
+
+        print('Example 2: if you want to have weeks 1 to 5 to have 50 percent of reduction, '\
+              'weeks 6 to 10 to have 30 percent of reduction, and weeks 11 to 52 as 0 percent of reduction, '\
               'enter 1,5,0.5,6,10,0.3,11,52,0\n')
         print('NOTE: The maximum contact reduction for this state is ' + str(int(a_sd_range*100)) +'%')
         a_sd_str = input('Enter value here: ')
         print('\n')
-        print("Enter decision choice for 'number of testing that can be done through contact tracing'"\
+        print("Enter decision choice for 'contact tracing and testing capcity per day'"\
               "for weeks 1 through 52 as Start week1, end week1, decision1, Start week2, end week2, decision2 ….")
-        print('Example 1: If you can do 100 tests per day for weeks 1 to 10, and 1000 tests per day for weeks 11 to 52,'\
+
+        print('Example 1: If you can do 100 tests per day for weeks 1 to 10, and 1000 tests per day for weeks 11 to 52, '\
               'enter 1,10,100,11,52,1000')
+
         print('Example 2: If you can do 100 tests per day for week 1, 200 tests per day for week 2, '\
               'and 1000 tests per day for weeks 3 to 52, enter 1,1,100,2,2,200,3,52,1000')
+
         a_c_str = input('Enter value here: ')
         print('\n')
-        print("Enter decision choice for 'number of testing that can be done through universal testing of population'"\
+        print("Enter decision choice for 'number of testing that can be done through universal testing of population' "\
               'for weeks 1 through 52 as Start week1, end week1, decision1, Start week2, end week2, decision2……')
-        print('Example 1: If you can do 100 tests per day for weeks 1 to 10, and 1000 tests per day for weeks 11 to 52,'\
+
+        print('Example 1: If you can do 100 tests per day for weeks 1 to 10, and 1000 tests per day for weeks 11 to 52, '\
               'enter 1,10,100,11,52,1000')
-        print('Example 2: If you can do 100 tests per day for week 1, 200 tests per day for week 2,'\
+
+        print('Example 2: If you can do 100 tests per day for week 1, 200 tests per day for week 2, '\
               'and 1000 tests per day for weeks 3 to 52, enter 1,1,100,2,2,200,3,52,1000')
         a_u_str = input('Enter value here: ')
         print('\n')
@@ -468,7 +476,7 @@ if  __name__ == "__main__":
         beta_u = gv.beta_after_sd  # assume keep social distancing 
         # print('decision',decision)
  
-    print("NOTE: plots are automatically saved in the folder")
+    print("NOTE: plots are automatically saved in the folder\n")
     print('Do you want to write results into excel file?')
     print('NOTE: writing it takes a longer time to process\n')
     write_ = 'N'
