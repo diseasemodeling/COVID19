@@ -433,22 +433,32 @@ if  __name__ == "__main__":
     bol_ = input('Enter Y or N: ')
     if bol_ == 'Y':
         a_sd_range =  1 - (gv.beta_after_sd/gv.beta_before_sd)
-        print("Enter decision choice for 'percent reduction in contacts' for weeks 1 through 52 as Start week1, end week1, decision1, Start week2, end week2, decision2,……. ")
-        print("Example 1: if you want week 1 to have 50 percent of reduction, and weeks 2 to 52 to have 30 percent of reduction, enter 1,1,0.5,2,52,0.3")
-        print("Example 2: if you to have weeks 1 to 5 to have 50 percent of reduction, weeks 6 to 10 to have 30 percent of reduction, and weeks 11 to 52 as 0 percent ofreduction, enter 1,5,0.5,6,10,0.3,11,52,0\n")
-        print("NOTE: The maximum contact reduction for this state is " + str(int(a_sd_range*100)) +'%')
-        a_sd_str = input("Enter value here: ")
-        print("\n")
-        print("Enter decision choice for 'number of testing that can be done through contact tracing' for weeks 1 through 52 as Start week1, end week1, decision1, Start week2, end week2, decision2 ….")
-        print("Example 1: If you can do 100 tests per day for weeks 1 to 10, and 1000 tests per day for weeks 11 to 52, enter 1,10,100,11,52,1000")
-        print("Example 2: If you can do 100 tests per day for week 1, 200 tests per day for week 2, and 1000 tests per day for weeks 3 to 52, enter 1,1,100,2,2,200,3,52,1000")
-        a_c_str = input("Enter value here: ")
-        print("\n")
-        print("Enter decision choice for 'number of testing that can be done through universal testing of population' for weeks 1 through 52 as Start week1, end week1, decision1, Start week2, end week2, decision2…… ")
-        print("Example 1: If you can do 100 tests per day for weeks 1 to 10, and 1000 tests per day for weeks 11 to 52, enter 1,10,100,11,52,1000")
-        print("Example 2: If you can do 100 tests per day for week 1, 200 tests per day for week 2, and 1000 tests per day for weeks 3 to 52, enter 1,1,100,2,2,200,3,52,1000")
-        a_u_str = input("Enter value here: ")
-        print("\n")
+        print("Enter decision choice for 'percent reduction in contacts' for weeks 1 through 52 as Start week1," \
+              'end week1, decision1, Start week2, end week2, decision2,……. ')
+        print('Example 1: if you want week 1 to have 50 percent of reduction,' \
+              'and weeks 2 to 52 to have 30 percent of reduction, enter 1,1,0.5,2,52,0.3')
+        print('Example 2: if you to have weeks 1 to 5 to have 50 percent of reduction, '\
+              'weeks 6 to 10 to have 30 percent of reduction, and weeks 11 to 52 as 0 percent ofreduction,'\
+              'enter 1,5,0.5,6,10,0.3,11,52,0\n')
+        print('NOTE: The maximum contact reduction for this state is ' + str(int(a_sd_range*100)) +'%')
+        a_sd_str = input('Enter value here: ')
+        print('\n')
+        print("Enter decision choice for 'number of testing that can be done through contact tracing'"\
+              "for weeks 1 through 52 as Start week1, end week1, decision1, Start week2, end week2, decision2 ….")
+        print('Example 1: If you can do 100 tests per day for weeks 1 to 10, and 1000 tests per day for weeks 11 to 52,'\
+              'enter 1,10,100,11,52,1000')
+        print('Example 2: If you can do 100 tests per day for week 1, 200 tests per day for week 2, '\
+              'and 1000 tests per day for weeks 3 to 52, enter 1,1,100,2,2,200,3,52,1000')
+        a_c_str = input('Enter value here: ')
+        print('\n')
+        print("Enter decision choice for 'number of testing that can be done through universal testing of population'"\
+              'for weeks 1 through 52 as Start week1, end week1, decision1, Start week2, end week2, decision2……')
+        print('Example 1: If you can do 100 tests per day for weeks 1 to 10, and 1000 tests per day for weeks 11 to 52,'\
+              'enter 1,10,100,11,52,1000')
+        print('Example 2: If you can do 100 tests per day for week 1, 200 tests per day for week 2,'\
+              'and 1000 tests per day for weeks 3 to 52, enter 1,1,100,2,2,200,3,52,1000')
+        a_u_str = input('Enter value here: ')
+        print('\n')
         gv.decision = gv.get_decisions(a_sd_str,a_c_str,a_u_str,gv.T_max)
         beta_u = gv.beta_before_sd
         # print('decision',decision)
