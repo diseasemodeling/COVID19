@@ -425,7 +425,10 @@ if  __name__ == "__main__":
     state = input('insert two letter abbreviation for the State that you want to model (e.g.: NY for New York): ')  # insert two letter abbreviation state that you want to model
     setup_COVID_sim(state, path) 
     print('Do you want to test a decision (Y or N)?\n')
-    print('If you choose N (No), it will assume social distancing measures as of May 3rd are maintained for the next 52 weeks, , and testing is only through baseline symptom-based testing, i.e., no contact tracing and testing, and no universal testing\n')
+    print('If you choose N (No), it will assume social distancing measures'\
+          'as of May 3rd are maintained for the next 52 weeks,'\
+          'and testing is only through baseline symptom-based testing, '\
+          'i.e., no contact tracing and testing, and no universal testing\n')
     bol_ = 'N'
     bol_ = input('Enter Y or N: ')
     if bol_ == 'Y':
