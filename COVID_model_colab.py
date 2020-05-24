@@ -441,7 +441,7 @@ if  __name__ == "__main__":
         print('Example 1: if you want week 1 to have 50'+'%'+' reduction, '\
               'and weeks 2 to 52 to have 30' +'%'+' reduction, enter 1,1,0.5,2,52,0.3\n')
 
-        print('Example 2: if you want to have weeks 1 to 5 to have 50'+'%'+' reduction, '\
+        print('Example 2: if you want weeks 1 to 5 to have 50'+'%'+' reduction, '\
               'weeks 6 to 10 to have 30'+'%'+' reduction,, and weeks 11 to 52 as 0'+'%'+' reduction,, '\
               'enter 1,5,0.5,6,10,0.3,11,52,0\n')
         print('NOTE: The maximum contact reduction for this state is ' + str(int(a_sd_range*100)) +'%')
