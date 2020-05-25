@@ -26,31 +26,27 @@ class CovidModel():
 
         self.a_sd_range = [0, 1 - (self.beta_min/self.beta_max)]  # social distancing range
         
-        self.T = gv.T_max
-        self.inv_dt = gv.inv_dt 
-        self.dt = 1/self.inv_dt
+        self.T = gv.T_max          # decision making time period
+        self.inv_dt = gv.inv_dt    # n time steps in one day
+        self.dt = 1/self.inv_dt    # inverse of n 
         
         """ ##### this one would be incorporated in the later stages of modeling, not used now
         self.lead_time = gv.lead_time          # the time period before the action takes effect"""  
 
         ### simulation related variables; won't change during the simulation 
         self.Q = gv.Q                                                      # Q-matrix
-        self.num_state = self.Q.shape[0]
-        self.rates_indices = gv.rates_indices                              # rate matrix
-        self.diag_indices = gv.diag_indices                                # diagonal matrix
+        self.num_state = self.Q.shape[0]                                   # number of states during the simulation
+        self.rates_indices = gv.rates_indices                              # rate matrix for calculating transition rate
+        self.diag_indices = gv.diag_indices                                # diagonal matrix for calculating transition rate
         self.symp_hospitalization = gv.symp_hospitalization_v            
         self.percent_dead_recover_days = gv.percent_dead_recover_days_v  
-        self.input_list_const = gv.input_list_const_v                      # input parameters
         self.init_pop_dist = gv.pop_dist_v                                 # initial population distribution 
         self.tot_pop = np.sum(self.init_pop_dist)                          # total number of population
         self.dry_run_end_diag = gv.dry_run_end_diag                        # after dry run, total number of diagnosis should match with data
-        self.days_of_simul_pre_sd = gv.days_of_simul_pre_sd
-        self.days_of_simul_post_sd = gv.days_of_simul_post_sd  
-
-        # simulation time period since dry run
-        self.T_total = self.inv_dt * (self.T + self.days_of_simul_pre_sd + self.days_of_simul_post_sd) # simulation time period from dry run
-      
-        ### read value, ub or lb for each items
+        self.days_of_simul_pre_sd = gv.days_of_simul_pre_sd                # number of days before social distancing
+        self.days_of_simul_post_sd = gv.days_of_simul_post_sd              # number of days after social distancing before the end of observed data
+       
+        self.input_list_const = gv.input_list_const_v                      # input parameters for reading the below parameters
         self.l_days =  self.input_list_const.loc['l_days', 'value']
         self.prop_asymp = self.input_list_const.loc['prop_asymp', 'value']
         self.incub_days = self.input_list_const.loc['incub_days', 'value']
@@ -58,23 +54,29 @@ class CovidModel():
         self.ir_days = self.input_list_const.loc['ir_days', 'value']
         self.qih_days = self.input_list_const.loc['qih_days', 'value']
         self.qir_days = self.input_list_const.loc['qir_days', 'value']
-        self.hosp_scale = gv.hosp_scale   # hospitalization scale
-        self.dead_scale = gv.dead_scale   # death scale
-
-        # rl related parameters
-        self.lab_for = gv.lab_for
-        self.VSL = gv.VSL
-        self.md_salary = gv.md_salary/self.inv_dt
-        self.K_val = gv.K_val
-        self.A_val = gv.A_val
-        self.h_val = gv.h_val
+        
+        self.hosp_scale = gv.hosp_scale                                     # hospitalization scale
+        self.dead_scale = gv.dead_scale                                     # death scale                   
+        # simulation time period since dry run
+        self.T_total = self.inv_dt * (self.T + self.days_of_simul_pre_sd + self.days_of_simul_post_sd) # simulation time period from dry run
+      
+    
+        # rl related parameters; won't change during the simulation 
+        self.lab_for = gv.lab_for                     # labor force participation rate 
+        self.VSL = gv.VSL                             # value of statistical life by age (1-101)
+        self.md_salary = gv.md_salary / self.inv_dt   # median salary per time step 
+        self.K_val = gv.K_val                         # coefficient for calculating unemployment rate
+        self.A_val = gv.A_val                         # coefficient for calculating unemployment rate
+        self.h_val = gv.h_val                         # coefficient for calculating unemployment rate
+        self.cost_tst = gv.test                       # cost of testing per person
+        
         self.rl_counter = 0                   # every time, when calculate immediate reward, counter will increment by 1
-        self.cost_tst = gv.test  
- 
+        
+        # initialize observation 
         self.op_ob = op.output_var(int(self.T_total/self.inv_dt) + 1, state = self.enter_state, cwd = path, policy = decision)
 
-       
-        self.reset_rl()                        # reset rl 
+
+        self.reset_rl()                        # initialize rl 
         self.reset_sim()                       # reset the simulation 
         
     def step(self, action_t, beta):
@@ -93,9 +95,9 @@ class CovidModel():
             self.op_ob.num_inf_plot[self.d] = np.sum(self.num_diag[indx_l: indx_u])        # new infected at timestep t
             self.op_ob.num_hosp_plot[self.d] = np.sum(self.num_hosp[indx_l: indx_u])       # new hosp at timestep t
             self.op_ob.num_dead_plot[self.d] = np.sum(self.num_dead[indx_l: indx_u])       # new dead at timestep t
-            self.op_ob.cumulative_inf[self.d] =  self.tot_num_diag[self.t]       # cumulative infections from start of sim to timestep t
-            self.op_ob.cumulative_hosp[self.d] = self.tot_num_hosp[self.t]       # cumulative hospitalizations from start of sim to timestep t
-            self.op_ob.cumulative_dead[self.d] = self.tot_num_dead[self.t]       # cumulative dead from start of sim to timestep t 
+            self.op_ob.cumulative_inf[self.d] =  self.tot_num_diag[self.t]                 # cumulative infections from start of sim to timestep t
+            self.op_ob.cumulative_hosp[self.d] = self.tot_num_hosp[self.t]                 # cumulative hospitalizations from start of sim to timestep t
+            self.op_ob.cumulative_dead[self.d] = self.tot_num_dead[self.t]                 # cumulative dead from start of sim to timestep t 
             self.op_ob.num_base[self.d] = np.sum(self.num_base_test[indx_l: indx_u]) 
             self.op_ob.num_uni[self.d] = np.sum(self.num_uni_test[indx_l: indx_u]) 
             self.op_ob.num_trac[self.d] = np.sum(self.num_trac_test[indx_l: indx_u]) 
@@ -107,13 +109,6 @@ class CovidModel():
             self.op_ob.univ_test_cost[self.d] =  (np.sum(self.cost_test_u[indx_l: indx_u])) 
             self.op_ob.trac_test_cost[self.d] =  (np.sum(self.cost_test_c[indx_l: indx_u])) 
             self.op_ob.bse_test_cost[self.d] =  (np.sum(self.cost_test_b[indx_l: indx_u]))
-            """if self.rl_counter > 0:
-                self.op_ob.VSL_plot[self.d] =  (np.sum(self.Final_VSL[indx_l: indx_u]))    # VSL at timestep t
-                self.op_ob.SAL_plot[self.d] =  (np.sum(self.Final_SAL[indx_l: indx_u]))    # SAL at timestep t        
-                self.op_ob.unemployment[self.d] = self.rate_unemploy[self.t]
-                self.op_ob.univ_test_cost[self.d] =  (np.sum(self.cost_test_u[indx_l: indx_u])) 
-                self.op_ob.trac_test_cost[self.d] =  (np.sum(self.cost_test_c[indx_l: indx_u])) 
-                self.op_ob.bse_test_cost[self.d] =  (np.sum(self.cost_test_b[indx_l: indx_u])) """
             self.d += 1
             
            
@@ -276,8 +271,6 @@ class CovidModel():
 
         # update total number of diagnosis, hospitalizations and deaths
             self.tot_num_diag[self.t] = self.tot_num_diag[self.t - 1] + np.sum(self.num_diag[self.t])
-            # print(self.tot_num_diag[self.t])
-            # input()
             self.tot_num_hosp[self.t] = self.tot_num_hosp[self.t - 1] + np.sum(self.num_hosp[self.t])
             self.tot_num_dead[self.t] = self.tot_num_dead[self.t - 1] +np.sum(self.num_dead[self.t])
             
@@ -318,7 +311,8 @@ class CovidModel():
             self.t += 1
             self.step(action_t = [0, 0, 0], beta = self.beta_min)
             t += 1
-               
+
+    # Function to intialize simulation, do dry run and any simulation before the decision making   
     def reset_sim(self):
         # print("reset_sim begin")
         self.d = 0
@@ -353,7 +347,6 @@ class CovidModel():
         self.tot_num_hosp[0] = self.tot_num_hosp[self.t]
         self.t = 0
 
-       
         self.output_result()      # record day 0   
 
         self.sim_bf_rl_dry_run()  # rl dry run until current data
@@ -361,6 +354,7 @@ class CovidModel():
         self.rate_unemploy[self.t] = gv.init_unemploy        # assign initial unemployment rate                                   
         # print("reset_sim end")
 
+    # initialize decision making 
     def reset_rl(self):
         # print("reset rl begin")
         # Initialize immediate reward
@@ -400,8 +394,7 @@ def run_COVID_sim(decision, path, beta_u, verbose = 'Y', write = 'N'):
             d_m = decision[i//sample_model.inv_dt]
         sample_model.step(action_t = d_m, beta = beta_u)
         i += 1
-        
-        
+   
         # print("##### step end ##### \n")
 
     gv.prog_bar.finish()
