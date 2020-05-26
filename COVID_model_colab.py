@@ -415,7 +415,8 @@ def run_COVID_sim(decision, path, beta_u, verbose = 'Y', write = 'N'):
 if  __name__ == "__main__":
     path = os.getcwd()
     state = 'NY' # default is New York
-    state = input('insert two letter abbreviation for the State that you want to model (e.g.: NY for New York): ')  # insert two letter abbreviation state that you want to model
+    print('Hi there, we are going to model New York State as a demonstration')
+    # state = input('insert two letter abbreviation for the State that you want to model (e.g.: NY for New York): ')  # insert two letter abbreviation state that you want to model
     setup_COVID_sim(state, path) 
     print('Do you want to test a decision (Y or N)?\n')
     print('If you choose N (No), it will assume social distancing measures' \
