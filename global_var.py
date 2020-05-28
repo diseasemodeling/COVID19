@@ -38,6 +38,9 @@ def setup_global_variables(state, inv_dt1, T_max_, lead_time_, time_unit_, beta_
     ##### user defined input #######
 
     ##### read input #######
+    global second_attack_rate
+    second_attack_rate = 10.5/100
+    
     sim_result = read_input(state = enter_state, cwd = path)
 
     begin_simul_rl_date = sim_result[2]
@@ -92,7 +95,7 @@ def setup_global_variables(state, inv_dt1, T_max_, lead_time_, time_unit_, beta_
     md_salary = 105.80  # median salary for unemployed
 
     global test
-    test = [43.61, 43.61, 43.61] # universal testing, contact tracing, base testing 
+    test = [43.61, 43.61, 43.61] #  base testing, contact tracing, universal testing
 
     rl_result = read_RL_inputs(state = enter_state, start_rl_sim_date = begin_simul_rl_date, cwd = path)
 
