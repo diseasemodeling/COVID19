@@ -111,7 +111,7 @@ def setup_global_variables(state, inv_dt1, T_max_, lead_time_, time_unit_, beta_
     init_unemploy = rl_result[5]
 
     global md_salary
-    md_salary = rl_result[6]/8 *(40/7) / inv_dt
+    md_salary = rl_result[6]/8 *(40/7)
 
     global test
     test = rl_result[7]
@@ -125,8 +125,10 @@ def setup_global_variables(state, inv_dt1, T_max_, lead_time_, time_unit_, beta_
     actual_data, acutal_unemp = read_actual_data(state = enter_state, cwd = path)
 
     print('\n')
-    """global decision_week
-    decision_week = read_decisions(cwd = path)"""
+
+    global decision
+    global decision_week
+    decision_week = read_decisions(cwd = path)
 
 
 # Function to read actual data
@@ -351,12 +353,12 @@ def read_RL_inputs(state, start_sim_date, cwd):
 # [7] = test - A list of size 1x3 which is the cost of symptom-based testing, contact tracing and universal testing
 
 
-"""def read_decisions(cwd):
+def read_decisions(cwd):
     dir_ = os.path.join(cwd, 'data/decision_making.csv')
     df = pd.read_csv(dir_) 
     df_v = df.to_numpy(dtype = float)
     x = np.copy(df_v[:,1:])
-    x[:,0] = a_sd_range  
+    x[:,0] = 1 
     return x
 
 def get_decisions(STR1, STR2, STR3, T):
@@ -398,6 +400,6 @@ def modify_input(STR):
     dic = {}
     for i in range(length):
         dic[(int(l[3*i]) -1 ,int(l[3*i + 1]))] = float(l[3*i + 2])
-    return dic   """
+    return dic   
 
     

@@ -25,8 +25,6 @@ class CovidModel():
 
         self.tot_risk = gv.tot_risk        # total risk group: female, male
         self.tot_age = gv.tot_age          # total age group: 101, by age
-
-        self.a_sd_range = [0, 1 - (self.beta_min/self.beta_max)]  # social distancing range
         
         self.T = gv.T_max          # decision making time period
         self.inv_dt = gv.inv_dt    # n time steps in one day
@@ -66,7 +64,7 @@ class CovidModel():
         # rl related parameters; won't change during the simulation 
         self.lab_for = gv.lab_for                                 # labor force participation rate 
         self.VSL = gv.VSL                                         # value of statistical life by age (1-101)
-        self.md_salary = gv.md_salary / self.inv_dt               # median salary per time step 
+        self.md_salary = gv.md_salary                             # median salary per time step 
         self.K_val = gv.K_val                                     # coefficient for calculating unemployment rate
         self.A_val = gv.A_val                                     # coefficient for calculating unemployment rate
         self.duration_unemployment = gv.duration_unemployment     # duration from social distaning to reaching maximum of unemployment rate
@@ -76,8 +74,8 @@ class CovidModel():
         # initialize observation 
         self.op_ob = op.output_var(int(self.T_total/self.inv_dt) + 1, state = self.enter_state, cwd = path, policy = decision)
 
-        self.reset_rl()                               # initialize rl 
-        self.reset_sim()                              # reset the simulation 
+        self.reset_rl()                                           # initialize rl 
+        self.reset_sim()                                          # reset the simulation 
     
     # Function to simulate compartment transition, calculate immediate reward function and output result
     # Input parameter:
@@ -113,7 +111,7 @@ class CovidModel():
             
             self.op_ob.VSL_plot[self.d] =  (np.sum(self.Final_VSL[indx_l: indx_u]))          # VSL at timestep t
             self.op_ob.SAL_plot[self.d] =  (np.sum(self.Final_SAL[indx_l: indx_u]))          # SAL at timestep t        
-            self.op_ob.unemployment[self.d] = self.rate_unemploy[self.t] *100                # unemployment rate at time step t
+            self.op_ob.unemployment[self.d] = self.rate_unemploy[self.t] * 100                # unemployment rate at time step t
             self.op_ob.univ_test_cost[self.d] =  (np.sum(self.cost_test_u[indx_l: indx_u]))  # cost of universal testing for the day 
             self.op_ob.trac_test_cost[self.d] =  (np.sum(self.cost_test_c[indx_l: indx_u]))  # cost of contact tracing for the day 
             self.op_ob.bse_test_cost[self.d] =  (np.sum(self.cost_test_b[indx_l: indx_u]))   # symptom based testing for the day
@@ -128,10 +126,11 @@ class CovidModel():
 
         # read action 
         a_sd = action_t[0]
-        a_c = min(1, (action_t[1]* self.second_attack_rate)/np.sum(self.pop_dist_sim[(self.t - 1),:,:,1:4]))
-        # a_u = min(1, (action_t[2]*np.sum(self.pop_dist_sim[(self.t - 1),:,:,1:4])/np.sum(self.pop_dist_sim[(self.t - 1),:,:,0])))
+        T_c = action_t[1]
         T_u = action_t[2]
-
+        a_u = T_u / np.sum(self.pop_dist_sim[(self.t - 1),:,:,0:4])
+        a_c = min(1, (T_c* self.second_attack_rate)/(1 - a_u)*np.sum(self.pop_dist_sim[(self.t - 1),:,:,1:4]))
+        
         self.calc_unemployment(a_sd)
     
         tot_alive = self.tot_pop - self.tot_num_dead[self.t - 1]   # total number of alive people at time step (t - 1)
@@ -141,22 +140,16 @@ class CovidModel():
         num_unemploy = tot_alive * self.rate_unemploy[self.t - 1] * self.lab_for  # rate converted to percentage
 
         # calculate total wage loss due to contact reducation  = number of unemployed x median wage / 1 million
-        self.Final_SAL[self.t] = num_unemploy * self.md_salary / million  
+        self.Final_SAL[self.t] = num_unemploy * self.md_salary * self.dt / million  
       
         # calculate total 'value of statistical life' loss due to deaths = number of newly dead x VSL (by age)
         num_dead = np.sum(self.num_dead[self.t - 1], axis = 0)
         self.Final_VSL[self.t]  = np.sum(np.dot(num_dead , self.VSL)) 
        
         # calculate cost of testing 
-        self.cost_test_b[self.t] = self.cost_tst[0] * np.sum(self.num_base_test[self.t]) /million
-        self.cost_test_c[self.t] = self.cost_tst[1] * a_c * np.sum(self.pop_dist_sim[(self.t - 1),:,:,1:4]) /self.second_attack_rate/million
-        self.cost_test_u[self.t] = self.cost_tst[2] * T_u / million
-        # num_test_u  = np.sum(self.pop_dist_sim[(self.t - 1),:,:,0:4]) # S + L + E + I
-        # num_test_c = np.sum(self.pop_dist_sim[(self.t - 1),:,:,1:4])  # L + E + I
-        # num_test_b = np.sum(self.pop_dist_sim[(self.t - 1),:,:,3:4])  # I
-        # self.cost_test_u[self.t] =  a_u * num_test_u * self.cost_tst[2]/ million           
-        # self.cost_test_c[self.t] = (1 - a_u)* a_c * num_test_c * self.cost_tst[1] / million
-        # self.cost_test_b[self.t] = (1 - (a_u +(1 - a_u) * a_c)) * self.a_b * num_test_b * self.cost_tst[0]/ million
+        self.cost_test_b[self.t] =  self.cost_tst[0] * np.sum(self.num_base_test[self.t]) /million
+        self.cost_test_c[self.t] =  self.dt * self.cost_tst[1] * a_c * (1 - a_u) * np.sum(self.pop_dist_sim[(self.t - 1),:,:,1:4]) /(self.second_attack_rate * million)
+        self.cost_test_u[self.t] =  self.dt * self.cost_tst[2] * T_u / million
         self.Final_TST[self.t] = self.cost_test_u[self.t] + self.cost_test_c[self.t] + self.cost_test_b[self.t] 
 
         # calculate immeidate reward 
@@ -177,29 +170,28 @@ class CovidModel():
         u = (self.K_val - self.A_val)/self.duration_unemployment
         
         if y_p == K:
-            self.rate_unemploy[self.t] = y_p - u*(K-A)
+            self.rate_unemploy[self.t] = y_p - u*(K-A) * self.dt
         else:
-            self.rate_unemploy[self.t] = y_p + u*(K-A)
+            self.rate_unemploy[self.t] = y_p + u*(K-A) * self.dt
       
-        # convert day to time step
-        # self.rate_unemploy[self.t] = self.rate_unemploy[self.t] * self.dt
-        # print(self.rate_unemploy[self.t])
-       
-
+    
+    
     # Function to calculate transition rates (only for the rates that won't change by risk or age)
     # Input parameter:
     # action_t = an np array of size [1x3] with the values output by the RL model (a_sd, T_c, T_u)
     def set_rate_array(self, action_t):
+        # read action 
         a_sd = action_t[0]
-        a_c = min(1, (action_t[1]* self.second_attack_rate)/np.sum(self.pop_dist_sim[(self.t - 1),:,:,1:4]))
-        a_u = min(1, (action_t[2]* np.sum(self.pop_dist_sim[(self.t - 1),:,:,1:4])/np.sum(self.pop_dist_sim[(self.t - 1),:,:,0])))
+        T_c = action_t[1]
+        T_u = action_t[2]
+        a_u = T_u / np.sum(self.pop_dist_sim[(self.t - 1),:,:,0:4])
+        a_c = min(1, (T_c* self.second_attack_rate)/(1 - a_u)*np.sum(self.pop_dist_sim[(self.t - 1),:,:,1:4]))
 
         # rate of S -> L
         beta_sd = self.beta_min + (1 - a_sd) * (self.beta_max - self.beta_min)
         self.rate_array[0] = (beta_sd * np.sum(self.pop_dist_sim[(self.t - 1),\
                               :,:,2:4]))/(np.sum(self.pop_dist_sim[(self.t - 1), :,:,0:9]))
-        # self.rate_array[0] = ((1 - a_sd)*(beta * np.sum(self.pop_dist_sim[(self.t - 1),\
-        #                       :,:,2:4])))/(np.sum(self.pop_dist_sim[(self.t - 1), :,:,0:9]))
+
         # rate of L -> E
         self.rate_array[1] = 1/self.l_days
         # rate of L -> Q_L
@@ -279,16 +271,14 @@ class CovidModel():
                 # number of new death at time step t
                 self.num_dead[self.t][risk][age] = pop_dis_b[0,7] * self.dt *  self.rate_array[15]
                 # number of diagnosis through symptom based testing
-                self.num_base_test[self.t][risk][age] = pop_dis_b[0,3] * self.dt * self.rate_array[7]
+                self.num_base_test[self.t][risk][age] = pop_dis_b[0,3] * self.dt * self.rate_array[7] + pop_dis_b[0,2] * self.dt * self.rate_array[5]
                 # number of diagnosis through universal testing
-                self.num_uni_test[self.t][risk][age] = (pop_dis_b[0,1] + pop_dis_b[0,2]) * self.dt * a_u
+                self.num_uni_test[self.t][risk][age] = (pop_dis_b[0,1] + pop_dis_b[0,2] + pop_dis_b[0,3]) * self.dt * a_u
                 # number of diagnosis through contact tracing
-                self.num_trac_test[self.t][risk][age] = (pop_dis_b[0,1] + (pop_dis_b[0,1] + pop_dis_b[0,2]) * self.dt * a_u) * self.dt * (1 - a_u) * a_c
-                # number of diagnosis through hospitalized 
-                self.num_hosp_test[self.t][risk][age] = pop_dis_b[0,2] * self.dt * self.rate_array[5]
+                self.num_trac_test[self.t][risk][age] = (pop_dis_b[0,1] + pop_dis_b[0,2] + pop_dis_b[0,3]) * self.dt * (1 - a_u) * a_c
+                
             # the total number of diagnosis
-            self.num_diag[self.t] = self.num_base_test[self.t] + self.num_trac_test[self.t] + self.num_uni_test[self.t] + self.num_hosp_test[self.t]
-
+            self.num_diag[self.t] = self.num_base_test[self.t] + self.num_trac_test[self.t] + self.num_uni_test[self.t]
         # update total number of diagnosis, hospitalizations and deaths
             self.tot_num_diag[self.t] = self.tot_num_diag[self.t - 1] + np.sum(self.num_diag[self.t])
             self.tot_num_hosp[self.t] = self.tot_num_hosp[self.t - 1] + np.sum(self.num_hosp[self.t])
@@ -459,3 +449,9 @@ if  __name__ == "__main__":
 
 
     
+# num_test_u  = np.sum(self.pop_dist_sim[(self.t - 1),:,:,0:4]) # S + L + E + I
+# num_test_c = np.sum(self.pop_dist_sim[(self.t - 1),:,:,1:4])  # L + E + I
+# num_test_b = np.sum(self.pop_dist_sim[(self.t - 1),:,:,3:4])  # I
+# self.cost_test_u[self.t] =  a_u * num_test_u * self.cost_tst[2]/ million           
+# self.cost_test_c[self.t] = (1 - a_u)* a_c * num_test_c * self.cost_tst[1] / million
+# self.cost_test_b[self.t] = (1 - (a_u +(1 - a_u) * a_c)) * self.a_b * num_test_b * self.cost_tst[0]/ million

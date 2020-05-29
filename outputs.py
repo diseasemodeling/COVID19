@@ -31,7 +31,7 @@ class output_var:
         self.start_d, self.sd_d, self.decision_d  = gv.read_date(state, cwd)
         self.policy_plot = policy
 
-        self.dpi =100
+        self.dpi =300
         
 
     def write_output(self, df1, df2, df3, df4, df5, choice = 1):
@@ -107,8 +107,10 @@ class output_var:
         arrowprops = dict(arrowstyle = "->",connectionstyle = "angle,angleA=0,angleB=70,rad=5")
         offset = 72
         day = pd.Timestamp(self.decision_d)
-        df.loc[df['Date'] >day].plot(x = 'Date', y = 'Assumption under selected social distancing', \
+        df.loc[df['Date'] >= self.start_d].plot(x = 'Date', y = 'Assumption under selected social distancing', \
                   use_index = True, ax = ax[0], fontsize = 10, marker= '.', linestyle = '--')
+        # df.loc[df['Date'] >day].plot(x = 'Date', y = 'Assumption under selected social distancing', \
+        #           use_index = True, ax = ax[0], fontsize = 10, marker= '.', linestyle = '--')
 
         actual_unemp.loc[actual_unemp['Date'] >= self.start_d].plot(x = 'Date',\
                         y = 'Actual unemployment rate', ax = ax[0], fontsize = 10,marker= '.',\
