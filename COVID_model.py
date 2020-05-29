@@ -377,6 +377,19 @@ class CovidModel():
 
     # initialize decision making 
     def reset_rl(self):
+        # print("reset rl begin")
+        # Initialize immediate reward related parameters
+        self.imm_reward = np.zeros(self.T_total + 1)
+        self.Final_VSL = np.zeros(self.T_total + 1) 
+        self.Final_SAL = np.zeros(self.T_total + 1)
+        self.Final_TST = np.zeros(self.T_total + 1)
+        self.cost_test_u = np.zeros(self.T_total + 1)
+        self.cost_test_c = np.zeros(self.T_total + 1)
+        self.cost_test_b = np.zeros(self.T_total + 1)
+        self.rate_unemploy = np.zeros(self.T_total + 1)
+        self.policy = np.zeros((self.T_total + 1, 3))  # not used now 
+   
+        # print("reset rl end")
         
 def setup_COVID_sim(state, path, T_max):             
     inv_dt = 10                 # insert time steps within each day
