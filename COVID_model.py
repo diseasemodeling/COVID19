@@ -8,7 +8,6 @@ import outputs as op
 import pdb
 import read_policy_mod as rp
 
-
 class CovidModel():
     def __init__(self, path, decision):
         super(CovidModel, self).__init__()
@@ -68,6 +67,7 @@ class CovidModel():
         self.K_val = gv.K_val                                     # coefficient for calculating unemployment rate
         self.A_val = gv.A_val                                     # coefficient for calculating unemployment rate
         self.duration_unemployment = gv.duration_unemployment     # duration from social distaning to reaching maximum of unemployment rate
+
         self.cost_tst = gv.test                                   # cost of testing per person ([0]: symptom-based, 
                                                                   # [1]: contact tracing, [2]: universal testing)
 
@@ -81,9 +81,9 @@ class CovidModel():
     # Input parameter:
     # beta = a float value representing transmission rate for the simulation 
     def step(self, action_t):
-        
-        self.simulation_base(action_t) 
-        self.calc_imm_reward(action_t)
+        self.set_action(action_t)
+        self.simulation_base() 
+        self.calc_imm_reward()
         self.output_result() 
                                  
     # Function to output result for plotting
@@ -111,27 +111,27 @@ class CovidModel():
             
             self.op_ob.VSL_plot[self.d] =  (np.sum(self.Final_VSL[indx_l: indx_u]))          # VSL at timestep t
             self.op_ob.SAL_plot[self.d] =  (np.sum(self.Final_SAL[indx_l: indx_u]))          # SAL at timestep t        
-            self.op_ob.unemployment[self.d] = self.rate_unemploy[self.t] * 100                # unemployment rate at time step t
+            self.op_ob.unemployment[self.d] = self.rate_unemploy[self.t] * 100               # unemployment rate at time step t
             self.op_ob.univ_test_cost[self.d] =  (np.sum(self.cost_test_u[indx_l: indx_u]))  # cost of universal testing for the day 
             self.op_ob.trac_test_cost[self.d] =  (np.sum(self.cost_test_c[indx_l: indx_u]))  # cost of contact tracing for the day 
             self.op_ob.bse_test_cost[self.d] =  (np.sum(self.cost_test_b[indx_l: indx_u]))   # symptom based testing for the day
             self.d += 1
             
-                
+    # Function to convert action 
+    def set_action(self, action_t):
+        self.a_sd = action_t[0]
+        self.T_c = action_t[1]
+        self.T_u = action_t[2]   
+        self.a_u = self.T_u / np.sum(self.pop_dist_sim[(self.t - 1),:,:,0:4])
+        self.a_c = min(1, (self.T_c* self.second_attack_rate)/((1 - self.a_u) * np.sum(self.pop_dist_sim[(self.t - 1),:,:,1:4])))
+
     # Function to calculate immediate reward /cost
     # Input parameter:
     # action_t = an np array of size [1x3] with the values output by the RL model (a_sd, T_c, T_u)
-    def calc_imm_reward(self, action_t):
+    def calc_imm_reward(self):
         million = 1000000 # one million dollars
-
-        # read action 
-        a_sd = action_t[0]
-        T_c = action_t[1]
-        T_u = action_t[2]
-        a_u = T_u / np.sum(self.pop_dist_sim[(self.t - 1),:,:,0:4])
-        a_c = min(1, (T_c* self.second_attack_rate)/(1 - a_u)*np.sum(self.pop_dist_sim[(self.t - 1),:,:,1:4]))
         
-        self.calc_unemployment(a_sd)
+        self.calc_unemployment()
     
         tot_alive = self.tot_pop - self.tot_num_dead[self.t - 1]   # total number of alive people at time step (t - 1)
     
@@ -148,8 +148,8 @@ class CovidModel():
        
         # calculate cost of testing 
         self.cost_test_b[self.t] =  self.cost_tst[0] * np.sum(self.num_base_test[self.t]) /million
-        self.cost_test_c[self.t] =  self.dt * self.cost_tst[1] * a_c * (1 - a_u) * np.sum(self.pop_dist_sim[(self.t - 1),:,:,1:4]) /(self.second_attack_rate * million)
-        self.cost_test_u[self.t] =  self.dt * self.cost_tst[2] * T_u / million
+        self.cost_test_c[self.t] =  self.dt * self.cost_tst[1] * self.a_c * (1 - self.a_u) * np.sum(self.pop_dist_sim[(self.t - 1),:,:,1:4]) /(self.second_attack_rate * million)
+        self.cost_test_u[self.t] =  self.dt * self.cost_tst[2] * self.T_u / million
         self.Final_TST[self.t] = self.cost_test_u[self.t] + self.cost_test_c[self.t] + self.cost_test_b[self.t] 
 
         # calculate immeidate reward 
@@ -160,50 +160,45 @@ class CovidModel():
     # Function to calculate unemployment change
     # Input parameter:
     # a_sd = a float value represents proportion of contact reduction
-    def calc_unemployment(self, a_sd):
-        y_p = self.rate_unemploy[self.t-1]
-   
-        K = max(a_sd * self.K_val, y_p)
-
-        A = max(self.A_val, min(a_sd * self.K_val, y_p))
-
-        u = (self.K_val - self.A_val)/self.duration_unemployment
+    def calc_unemployment(self):
         
+        y_p = self.rate_unemploy[self.t-1]
+        
+        K = max(self.a_sd * self.K_val, y_p)
+
+        A = max(self.A_val, min(self.a_sd * self.K_val, y_p))
+
+        u_plus = (self.K_val - self.A_val)/self.duration_unemployment
+
+        u_minus = 0.5 * (self.K_val - self.A_val)/self.duration_unemployment
         if y_p == K:
-            self.rate_unemploy[self.t] = y_p - u*(K-A) * self.dt
+            self.rate_unemploy[self.t] = y_p - u_minus * (K-A) * self.dt
+            # self.rate_unemploy[self.t] = y_p - u_minus * (K-A) 
         else:
-            self.rate_unemploy[self.t] = y_p + u*(K-A) * self.dt
-      
-    
-    
+            self.rate_unemploy[self.t] = y_p + u_plus * (K-A) * self.dt
+            # self.rate_unemploy[self.t] = y_p + u_plus * (K-A)
+       
+
     # Function to calculate transition rates (only for the rates that won't change by risk or age)
     # Input parameter:
     # action_t = an np array of size [1x3] with the values output by the RL model (a_sd, T_c, T_u)
-    def set_rate_array(self, action_t):
-        # read action 
-        a_sd = action_t[0]
-        T_c = action_t[1]
-        T_u = action_t[2]
-        a_u = T_u / np.sum(self.pop_dist_sim[(self.t - 1),:,:,0:4])
-        a_c = min(1, (T_c* self.second_attack_rate)/(1 - a_u)*np.sum(self.pop_dist_sim[(self.t - 1),:,:,1:4]))
-
+    def set_rate_array(self):
         # rate of S -> L
-        beta_sd = self.beta_min + (1 - a_sd) * (self.beta_max - self.beta_min)
+        beta_sd = self.beta_min + (1 - self.a_sd) * (self.beta_max - self.beta_min)
         self.rate_array[0] = (beta_sd * np.sum(self.pop_dist_sim[(self.t - 1),\
                               :,:,2:4]))/(np.sum(self.pop_dist_sim[(self.t - 1), :,:,0:9]))
-
         # rate of L -> E
         self.rate_array[1] = 1/self.l_days
         # rate of L -> Q_L
-        self.rate_array[2] = a_u + ((1 - a_u)*a_c)
+        self.rate_array[2] = self.a_u + ((1 - self.a_u)*self.a_c)
         # rate of E -> Q_E
-        self.rate_array[4] = a_u + ((1 - a_u)*a_c)
+        self.rate_array[4] = self.a_u + ((1 - self.a_u)*self.a_c)
         # rate of E -> Q_I
         self.rate_array[6] = self.prop_asymp/(self.incub_days - self.l_days)
         # rate of I -> Q_I
         self.rate_array[7] = self.a_b
         # rate of I -> R
-        self.rate_array[8] = ((a_u + (1-a_u)*a_c)) + 1/self.ir_days  
+        self.rate_array[8] = ((self.a_u + (1-self.a_u)*self.a_c)) + 1/self.ir_days  
         # rate of Q_L -> Q_E
         self.rate_array[9] = 1/self.l_days
 
@@ -214,13 +209,9 @@ class CovidModel():
     
     # 0	1	2	3	4	5	6	7	8	9 compartments
     # S	L	E	I	Q_L	Q_E	Q_I	H	R	D compartments
-    def simulation_base(self, action_t):
-        a_sd = action_t[0]
-        a_c = min(1, (action_t[1]* self.second_attack_rate)/np.sum(self.pop_dist_sim[(self.t - 1),:,:,1:4]))
-        a_u = min(1, (action_t[2]* np.sum(self.pop_dist_sim[(self.t - 1),:,:,1:4])/np.sum(self.pop_dist_sim[(self.t - 1),:,:,0])))
-
+    def simulation_base(self):
         # Calculate transition rate that won't change during the for loop
-        self.set_rate_array(action_t)
+        self.set_rate_array()
 
         for risk in range(self.tot_risk): # for each risk group i.e, male(0) and female(1)
 
@@ -273,9 +264,9 @@ class CovidModel():
                 # number of diagnosis through symptom based testing
                 self.num_base_test[self.t][risk][age] = pop_dis_b[0,3] * self.dt * self.rate_array[7] + pop_dis_b[0,2] * self.dt * self.rate_array[5]
                 # number of diagnosis through universal testing
-                self.num_uni_test[self.t][risk][age] = (pop_dis_b[0,1] + pop_dis_b[0,2] + pop_dis_b[0,3]) * self.dt * a_u
+                self.num_uni_test[self.t][risk][age] = (pop_dis_b[0,1] + pop_dis_b[0,2] + pop_dis_b[0,3]) * self.dt * self.a_u
                 # number of diagnosis through contact tracing
-                self.num_trac_test[self.t][risk][age] = (pop_dis_b[0,1] + pop_dis_b[0,2] + pop_dis_b[0,3]) * self.dt * (1 - a_u) * a_c
+                self.num_trac_test[self.t][risk][age] = (pop_dis_b[0,1] + pop_dis_b[0,2] + pop_dis_b[0,3]) * self.dt * (1 - self.a_u) * self.a_c
                 
             # the total number of diagnosis
             self.num_diag[self.t] = self.num_base_test[self.t] + self.num_trac_test[self.t] + self.num_uni_test[self.t]
@@ -304,8 +295,7 @@ class CovidModel():
  
         while(self.tot_num_diag[self.t] < self.dry_run_end_diag):  
             self.t += 1
-            self.simulation_base(action_t = [0, 0, 0])
-
+            self.simulation_base()
 
     # Function to run the simulation until the last day of observed data
     # Input parameter:
@@ -352,6 +342,13 @@ class CovidModel():
         self.tot_num_dead = np.zeros(self.T_total + 1)                                   # cumulative deaths
         self.tot_num_hosp = np.zeros(self.T_total + 1)                                   # cumulative hospitalizations
         
+        # initialize action
+        self.a_sd = 0
+        self.a_c = 0
+        self.a_u = 0
+        self.T_c = 0
+        self.T_u = 0
+
         # after dry run, total number of diagnosis should match with data 
         self.dryrun()   
         
@@ -368,6 +365,8 @@ class CovidModel():
         self.num_trac_test[0] = self.num_trac_test[self.t]
         self.num_hosp_test[0] = self.num_hosp_test[self.t]
         self.rate_unemploy[0] = gv.init_unemploy        # assign initial unemployment rate     
+
+        # reset time
         self.t = 0
 
         self.output_result()      # record day 0   
@@ -378,20 +377,6 @@ class CovidModel():
 
     # initialize decision making 
     def reset_rl(self):
-        # print("reset rl begin")
-        # Initialize immediate reward related parameters
-        self.imm_reward = np.zeros(self.T_total + 1)
-        self.Final_VSL = np.zeros(self.T_total + 1) 
-        self.Final_SAL = np.zeros(self.T_total + 1)
-        self.Final_TST = np.zeros(self.T_total + 1)
-        self.cost_test_u = np.zeros(self.T_total + 1)
-        self.cost_test_c = np.zeros(self.T_total + 1)
-        self.cost_test_b = np.zeros(self.T_total + 1)
-        self.rate_unemploy = np.zeros(self.T_total + 1)
-        self.policy = np.zeros((self.T_total + 1, 3))  # not used now 
-   
-        # print("reset rl end")
-
         
 def setup_COVID_sim(state, path, T_max):             
     inv_dt = 10                 # insert time steps within each day

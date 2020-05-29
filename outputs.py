@@ -226,6 +226,7 @@ class output_var:
                
         ax[0].set_xlim(left = pd.Timestamp(self.start_d))
         ax[1].set_xlim(left = pd.Timestamp(self.start_d))
+        ax[1].set_ylim(bottom = 0)
         ax[0].yaxis.set_major_formatter(FuncFormatter(lambda y, _: '{:.0%}'.format(y))) 
         ax[0].set_ylabel('Proportion')
         ax[1].set_ylabel('Number of test')
