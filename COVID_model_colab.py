@@ -438,7 +438,7 @@ def run_COVID_sim(decision, path, verbose = 'Y', write = 'N'):
     df5 = sample_model.op_ob.plot_decison()
     # # sample_model.op_ob.plot_time_output()
  
-    if write == 'Y':
+    if write == 'Y' or write == 'y':
         sample_model.op_ob.write_output(df1, df2, df3, df4, df5)
     else:
         pass
@@ -459,7 +459,7 @@ if  __name__ == "__main__":
     bol_ = 'N'
     bol_ = input('Enter Y or N: ')
     print('\n')
-    if bol_ == 'Y':
+    if bol_ == 'Y' or bol_ =='y':
         print("ENTER DECISION CHOICE FOR SOCIAL DISTANCING AS 'PERCENT REDUCTION IN CONTACTS COMPARED TO A NORMAL PRE-COVID SITUATION' "\
               "for weeks 1 through 52 as Start week1," \
               'end week1, decision1, Start week2, end week2, decision2,…….')

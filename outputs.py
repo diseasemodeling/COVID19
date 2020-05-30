@@ -33,7 +33,7 @@ class output_var:
         self.num_diag_inf = np.zeros(sizeofrun)
         self.num_undiag_inf = np.zeros(sizeofrun)
 
-        self.dpi =300
+        self.dpi = 150
         
 
     def write_output(self, df1, df2, df3, df4, df5, choice = 1):
@@ -102,35 +102,37 @@ class output_var:
         df_name = ['Date', 'Wage loss', 'Assumption under selected social distancing']
         df = pd.DataFrame(data = df_data.T, index = None, columns = df_name)
         
-        # plo
         fig, ax = plt.subplots(2, 1)
-        
-        bbox = dict(boxstyle="round", fc="0.8")
-        arrowprops = dict(arrowstyle = "->",connectionstyle = "angle,angleA=0,angleB=70,rad=5")
-        offset = 72
         day = pd.Timestamp(self.decision_d)
-        df.loc[df['Date'] >= self.start_d].plot(x = 'Date', y = 'Assumption under selected social distancing', \
-                  use_index = True, ax = ax[0], fontsize = 10, marker= '.', linestyle = '--')
-        # df.loc[df['Date'] >day].plot(x = 'Date', y = 'Assumption under selected social distancing', \
+        # df.loc[df['Date'] >= self.start_d].plot(x = 'Date', y = 'Assumption under selected social distancing', \
         #           use_index = True, ax = ax[0], fontsize = 10, marker= '.', linestyle = '--')
+        df.loc[df['Date'] >=day].plot(x = 'Date', y = 'Assumption under selected social distancing', \
+                  use_index = True, ax = ax[0], fontsize = 10, marker= '.', linestyle = '--')
 
         actual_unemp.loc[actual_unemp['Date'] >= self.start_d].plot(x = 'Date',\
                         y = 'Actual unemployment rate', ax = ax[0], fontsize = 10,marker= '.',\
                         label = 'Actual unemployment rate')
         ax[0].set_title('Unemployment rate \n (Assumption: Assumption for unemployment rate under selected social distancing)')
-        
-        ax[0].annotate('Start of decision making',(self.decision_d,0),xytext=(0.5*offset, 0.5*offset), \
-                        textcoords='offset points',bbox=bbox, arrowprops=arrowprops)
-       
         ax[0].set_xlim(left =pd.Timestamp(self.start_d) )
         ax[0].set_ylabel('Rate')
-        df.loc[df['Date']> day].plot(x = 'Date', y = 'Wage loss', title = 'Wage loss', \
+        df.loc[df['Date']>= day].plot(x = 'Date', y = 'Wage loss', title = 'Wage loss', \
                                       use_index = True, ax = ax[1], legend = False, fontsize = 10,\
                                       marker= '.', linestyle = '--')
-        ax[1].annotate('Start of decision making',(self.decision_d,0),xytext=(0.5*offset, 0.5*offset), \
-                        textcoords='offset points',bbox=bbox, arrowprops=arrowprops)
+        
         ax[1].set_ylabel("Million dollars")
         ax[1].set_xlim(left =pd.Timestamp(self.start_d))
+
+        # create an arrow
+        bbox = dict(boxstyle="round", fc="0.8")
+        arrowprops = dict(arrowstyle = "->",connectionstyle = "angle,angleA=0,angleB=70,rad=5")
+        offset = 72
+        
+        y1 = df.loc[df['Date'] == self.decision_d]['Assumption under selected social distancing']
+        ax[0].annotate('Start of decision making',(self.decision_d,y1),xytext=(0.5*offset, -0.5*offset), \
+                        textcoords='offset points',bbox=bbox, arrowprops=arrowprops)
+        y2 = df.loc[df['Date'] == self.decision_d]['Wage loss']
+        ax[1].annotate('Start of decision making',(self.decision_d,y2),xytext=(0.5*offset, 0.5*offset), \
+                        textcoords='offset points',bbox=bbox, arrowprops=arrowprops)
 
         plt.subplots_adjust(hspace = 0.5)
         plt.savefig('2.png',dpi = self.dpi)
@@ -217,7 +219,7 @@ class output_var:
 
     def plot_decison(self):
         plt.style.use('seaborn')
-        date = pd.date_range(start= self.sd_d, periods= self.policy_plot.shape[0])
+        date = pd.date_range(start= self.decision_d, periods= self.policy_plot.shape[0])
         fig, ax = plt.subplots(2, 1)
         df = pd.DataFrame(data = self.policy_plot, index = date, columns = ['Percent reduction in contacts through social distancing',\
                         'Testing capacity – maximum tests per day through contact tracing', \
@@ -238,6 +240,17 @@ class output_var:
         ax[0].yaxis.set_major_formatter(FuncFormatter(lambda y, _: '{:.0%}'.format(y))) 
         ax[0].set_ylabel('Proportion')
         ax[1].set_ylabel('Number of test')
+        
+        bbox = dict(boxstyle="round", fc="0.8")
+        arrowprops = dict(arrowstyle = "->",connectionstyle = "angle,angleA=0,angleB=70,rad=5")
+        offset = 72
+        y1 = df.loc[self.decision_d]['Percent reduction in contacts through social distancing']
+        ax[0].annotate('Start of decision making',(self.decision_d, y1),xytext=(0.5*offset, 0.5*offset), \
+                        textcoords='offset points',bbox=bbox, arrowprops=arrowprops)
+        y2 = df.loc[self.decision_d]['Testing capacity – maximum tests per day through contact tracing']
+        ax[1].annotate('Start of decision making',(self.decision_d, y2),xytext=(0.5*offset, 0.3*offset), \
+                       textcoords='offset points',bbox=bbox, arrowprops=arrowprops)
+
         fig.suptitle('User entered decision choice')
 
         plt.savefig('8.png',dpi = self.dpi)
