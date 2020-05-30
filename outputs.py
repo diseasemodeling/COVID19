@@ -30,6 +30,8 @@ class output_var:
         self.num_hop_tst =  np.zeros(sizeofrun)
         self.start_d, self.sd_d, self.decision_d  = gv.read_date(state, cwd)
         self.policy_plot = policy
+        self.num_diag_inf = np.zeros(sizeofrun)
+        self.num_undiag_inf = np.zeros(sizeofrun)
 
         self.dpi =300
         
@@ -176,9 +178,10 @@ class output_var:
     def plot_cum_output(self, actual_data): 
         plt.style.use('seaborn')
         date = pd.date_range(start= self.start_d, periods= self.cumulative_inf.shape[0])
-        df_data = np.array([date, self.cumulative_inf, self.cumulative_hosp, self.cumulative_dead])
+        df_data = np.array([date, self.cumulative_inf, self.cumulative_hosp, self.cumulative_dead, \
+                            self.num_diag_inf, self.num_undiag_inf])
         df_name = ['date', 'projected cumulative diagnosis', 'projected cumulative hospitalized',\
-                   'projected cumulative deaths']
+                   'projected cumulative deaths', 'number of infected, diagnosed', 'number of infected, undiagnosed']
         
         df = pd.DataFrame(data = df_data.T, index = None, columns = df_name)
       
@@ -202,7 +205,12 @@ class output_var:
         plt.title("Cumulative hospitalizations over time")
         plt.savefig('6.png',dpi = self.dpi)
         plt.close()
+
        
+        fig3, ax3 = plt.subplots()
+        df.plot(x = 'date', y = 'number of infected, diagnosed', fontsize = 10, ax = ax3)
+        df.plot(x = 'date', y = 'number of infected, undiagnosed', fontsize = 10, ax = ax3)
+        plt.savefig('7.png',dpi = self.dpi)
 
         df = df.set_index('date')
         return df
@@ -232,7 +240,7 @@ class output_var:
         ax[1].set_ylabel('Number of test')
         fig.suptitle('User entered decision choice')
 
-        plt.savefig('7.png',dpi = self.dpi)
+        plt.savefig('8.png',dpi = self.dpi)
         plt.close()
       
         return df

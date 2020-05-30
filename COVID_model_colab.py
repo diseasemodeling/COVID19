@@ -115,6 +115,9 @@ class CovidModel():
             self.op_ob.univ_test_cost[self.d] =  (np.sum(self.cost_test_u[indx_l: indx_u]))  # cost of universal testing for the day 
             self.op_ob.trac_test_cost[self.d] =  (np.sum(self.cost_test_c[indx_l: indx_u]))  # cost of contact tracing for the day 
             self.op_ob.bse_test_cost[self.d] =  (np.sum(self.cost_test_b[indx_l: indx_u]))   # symptom based testing for the day
+            
+            self.op_ob.num_diag_inf[self.d] = self.num_diag_inf[self.t]                      # Q_L + Q_E + Q_I
+            self.op_ob.num_undiag_inf[self.d] = self.num_undiag_inf[self.t]                  # L + E + I
             self.d += 1
             
     # Function to convert action 
@@ -124,6 +127,7 @@ class CovidModel():
         self.T_u = action_t[2]   
         self.a_u = self.T_u / np.sum(self.pop_dist_sim[(self.t - 1),:,:,0:4])
         self.a_c = min(1, (self.T_c * self.second_attack_rate)/((1 - self.a_u) * np.sum(self.pop_dist_sim[(self.t - 1),:,:,1:4])))
+    
 
     # Function to calculate immediate reward /cost
     # Input parameter:
@@ -172,11 +176,10 @@ class CovidModel():
 
         u_minus = 0.5 * (K - A)/self.duration_unemployment
         if y_p == K:
-            self.rate_unemploy[self.t] = y_p - u_minus * (K-A) * self.dt
-            # self.rate_unemploy[self.t] = y_p - u_minus * (K-A) 
+            self.rate_unemploy[self.t] = y_p - u_minus * self.dt
         else:
-            self.rate_unemploy[self.t] = y_p + u_plus * (K-A) * self.dt
-            # self.rate_unemploy[self.t] = y_p + u_plus * (K-A)
+            self.rate_unemploy[self.t] = y_p + u_plus *  self.dt
+
        
 
     # Function to calculate transition rates (only for the rates that won't change by risk or age)
@@ -268,13 +271,16 @@ class CovidModel():
                 # number of diagnosis through contact tracing
                 self.num_trac_test[self.t][risk][age] = (pop_dis_b[0,1] + pop_dis_b[0,2] + pop_dis_b[0,3]) * self.dt * (1 - self.a_u) * self.a_c
                 
-            # the total number of diagnosis
-            self.num_diag[self.t] = self.num_base_test[self.t] + self.num_trac_test[self.t] + self.num_uni_test[self.t]
-        # update total number of diagnosis, hospitalizations and deaths
-            self.tot_num_diag[self.t] = self.tot_num_diag[self.t - 1] + np.sum(self.num_diag[self.t])
-            self.tot_num_hosp[self.t] = self.tot_num_hosp[self.t - 1] + np.sum(self.num_hosp[self.t])
-            self.tot_num_dead[self.t] = self.tot_num_dead[self.t - 1] +np.sum(self.num_dead[self.t])
+        # the total number of diagnosis
+        self.num_diag[self.t] = self.num_base_test[self.t] + self.num_trac_test[self.t] + self.num_uni_test[self.t]
+            # update total number of diagnosis, hospitalizations and deaths
+        self.tot_num_diag[self.t] = self.tot_num_diag[self.t - 1] + np.sum(self.num_diag[self.t])
+        self.tot_num_hosp[self.t] = self.tot_num_hosp[self.t - 1] + np.sum(self.num_hosp[self.t])
+        self.tot_num_dead[self.t] = self.tot_num_dead[self.t - 1] +np.sum(self.num_dead[self.t])
             
+        self.num_diag_inf[self.t] = np.sum(self.pop_dist_sim[(self.t - 1),:,:,4:7])
+        self.num_undiag_inf[self.t] = np.sum(self.pop_dist_sim[(self.t - 1),:,:,1:4])
+
     # Function to run the simulation until total number of diagnosis match with the first observed data
     def dryrun(self):
 
@@ -342,6 +348,9 @@ class CovidModel():
         self.tot_num_dead = np.zeros(self.T_total + 1)                                   # cumulative deaths
         self.tot_num_hosp = np.zeros(self.T_total + 1)                                   # cumulative hospitalizations
         
+        self.num_diag_inf = np.zeros(self.T_total + 1)                                   # Q_L + Q_E + Q_I
+        self.num_undiag_inf = np.zeros(self.T_total + 1)                                 # L + E + I
+
         # initialize action
         self.a_sd = 0
         self.a_c = 0
@@ -364,6 +373,8 @@ class CovidModel():
         self.num_uni_test[0] = self.num_uni_test[self.t]
         self.num_trac_test[0] = self.num_trac_test[self.t]
         self.num_hosp_test[0] = self.num_hosp_test[self.t]
+        self.num_diag_inf[0] = self.num_diag_inf[self.t]
+        self.num_undiag_inf[0] = self.num_undiag_inf[self.t]
         self.rate_unemploy[0] = gv.init_unemploy        # assign initial unemployment rate     
 
         # reset time
