@@ -5,12 +5,12 @@ An interactive simulation tool for evaluating combination interventions for phas
 ## To use the simulation tool for evaluating decisions 
 1. Click on below model link to open the code in Google Colab - you will have to log in to your google account. The simulation model is built in Python, if you run it in Colab, you do not have to install any software.
 
-      [Run model link](https://colab.research.google.com/drive/1GXs3hBg68w23-Kv5GCFQI30KKRxsfyFP) 
+      [Run model (link)](https://colab.research.google.com/drive/1GXs3hBg68w23-Kv5GCFQI30KKRxsfyFP) 
       
 2. In Colab, click on 'Runtime-->Run all'. Follow instructions given by the model to enter decisons you would like to evaluate for 
-      - Reduction in contacts  (social distancing measures)
-      - Contact tracing and testing capacity
-      - Universal testing capacity 
+    - Reduction in contacts  (social distancing measures)
+    - Contact tracing and testing capacity
+    - Universal testing capacity 
       
 ## Model download and info
  
