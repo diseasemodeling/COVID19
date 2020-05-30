@@ -1,5 +1,7 @@
-# COVID-19 decision-analysis simulation model 
-This is an interactive simulaton tool to evaluate user-input options for social distancing, contact tracing and testing, and universal testing. 
+# COVID-19 Decision-Analysis Simulation Model 
+An interactive simulation tool for evaluating combination interventions for phased reopening- Application to State of New York.
+
+Model can be used to evaluate weekly changes in options for social distancing, contact tracing and testing, and universal testing, for a 52 week period
 
 ## To run the simulation model: 
 1. Click on below model link to open the code in Colab (you will have to log in to your google account) 
