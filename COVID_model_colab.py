@@ -168,9 +168,9 @@ class CovidModel():
 
         A = max(self.A_val, min(self.a_sd * self.K_val, y_p))
 
-        u_plus = (self.K_val - self.A_val)/self.duration_unemployment
+        u_plus = (K - A)/self.duration_unemployment
 
-        u_minus = 0.5 * (self.K_val - self.A_val)/self.duration_unemployment
+        u_minus = 0.5 * (K - A)/self.duration_unemployment
         if y_p == K:
             self.rate_unemploy[self.t] = y_p - u_minus * (K-A) * self.dt
             # self.rate_unemploy[self.t] = y_p - u_minus * (K-A) 
