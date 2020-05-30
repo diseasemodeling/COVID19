@@ -460,20 +460,20 @@ if  __name__ == "__main__":
     bol_ = input('Enter Y or N: ')
     print('\n')
     if bol_ == 'Y':
-        print("Enter decision choice for social distancing as 'percent reduction in contacts compared to a normal pre-COVID situation' "\
+        print("ENTER DECISION CHOICE FOR SOCIAL DISTANCING AS 'PERCENT REDUCTION IN CONTACTS COMPARED TO A NORMAL PRE-COVID SITUATION' "\
               "for weeks 1 through 52 as Start week1," \
-              'end week1, decision1, Start week2, end week2, decision2,…….\n')
+              'end week1, decision1, Start week2, end week2, decision2,…….')
 
-        print('Example 1: if you want week 1 to have 50'+'%'+' reduction, '\
-              'and weeks 2 to 52 to have 30' +'%'+' reduction, enter 1,1,0.5,2,52,0.3\n')
+        print('EXAMPLE 1: if you want week 1 to have 50'+'%'+' reduction, '\
+              'and weeks 2 to 52 to have 30' +'%'+' reduction, enter 1,1,0.5,2,52,0.3')
 
-        print('Example 2: if you want weeks 1 to 5 to have 50'+'%'+' reduction, '\
+        print('EXAMPLE 2: if you want weeks 1 to 5 to have 50'+'%'+' reduction, '\
               'weeks 6 to 10 to have 30'+'%'+' reduction,, and weeks 11 to 52 as 0'+'%'+' reduction,, '\
               'enter 1,5,0.5,6,10,0.3,11,52,0\n')
         print('NOTE: The maximum contact reduction is ' + str(int(100)) +'%')
         a_sd_str = input('Enter value here: ')
         print('\n')
-        print("Enter decision choice for 'contact tracing and testing capcity per day'"\
+        print("ENTER DECISION CHOICE FOR 'CONTACT TRACING AND TESTING CAPACITY PER DAY'"\
               "for weeks 1 through 52 as Start week1, end week1, decision1, Start week2, end week2, decision2 ….\n")
 
         print('Example 1: If you can do 100 tests per day for weeks 1 to 10, and 1000 tests per day for weeks 11 to 52, '\
@@ -484,7 +484,7 @@ if  __name__ == "__main__":
 
         a_c_str = input('Enter value here: ')
         print('\n')
-        print("Enter decision choice for 'testing capacity per day for universal testing of population' "\
+        print("ENTER DECISION CHOICE FOR 'TESTING CAPACITY PER DAY FOR UNIVERSAL TESTING OF POPULATION' "\
               'for weeks 1 through 52 as Start week1, end week1, decision1, Start week2, end week2, decision2……\n')
 
         print('Example 1: If you can do 100 tests per day for weeks 1 to 10, and 1000 tests per day for weeks 11 to 52, '\
