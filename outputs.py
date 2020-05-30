@@ -183,7 +183,7 @@ class output_var:
         df_data = np.array([date, self.cumulative_inf, self.cumulative_hosp, self.cumulative_dead, \
                             self.num_diag_inf, self.num_undiag_inf])
         df_name = ['date', 'projected cumulative diagnosis', 'projected cumulative hospitalized',\
-                   'projected cumulative deaths', 'number of infected, diagnosed', 'number of infected, undiagnosed']
+                   'projected cumulative deaths', 'number infected, diagnosed', 'number infected, undiagnosed']
         
         df = pd.DataFrame(data = df_data.T, index = None, columns = df_name)
       
@@ -240,7 +240,7 @@ class output_var:
         ax[1].set_ylim(bottom = 0)
         ax[0].yaxis.set_major_formatter(FuncFormatter(lambda y, _: '{:.0%}'.format(y))) 
         ax[0].set_ylabel('Proportion')
-        ax[1].set_ylabel('Number of test')
+        ax[1].set_ylabel('Testing capacity')
         
         bbox = dict(boxstyle="round", fc="0.8")
         arrowprops = dict(arrowstyle = "->",connectionstyle = "angle,angleA=0,angleB=70,rad=5")
