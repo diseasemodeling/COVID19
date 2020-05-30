@@ -14,6 +14,7 @@ This is an interactive simulaton tool to evaluate user-input options for social 
       - Reduction in contacts  (social distancing measures)
       - Contact tracing and testing capacity
       - Universal testing capacity 
-
+      
+3. Methodology 
 
 
