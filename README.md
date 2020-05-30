@@ -9,6 +9,10 @@ This is an interactive simulaton tool to evaluate user-input options for social 
       (The simulation model is built in Python, if you run it in Google Colab you do not have to install any software)
 
 2. In Colab click on 'Runtime-->Run all'
+      Follow instructions given by model to enter the decisons you would like to evaluate for 
+      - Reduction in contacts 
+      - Contact tracing and testing capacity
+      - Universal testing capacity 
 
 
 
