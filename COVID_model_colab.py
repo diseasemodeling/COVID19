@@ -474,23 +474,23 @@ if  __name__ == "__main__":
         a_sd_str = input('Enter value here: ')
         print('\n')
         print("ENTER DECISION CHOICE FOR 'CONTACT TRACING AND TESTING CAPACITY PER DAY'"\
-              "for weeks 1 through 52 as Start week1, end week1, decision1, Start week2, end week2, decision2 ….\n")
+              "for weeks 1 through 52 as Start week1, end week1, decision1, Start week2, end week2, decision2 ….")
 
-        print('Example 1: If you can do 100 tests per day for weeks 1 to 10, and 1000 tests per day for weeks 11 to 52, '\
-              'enter 1,10,100,11,52,1000\n')
+        print('EXAMPLE 1: If you can do 100 tests per day for weeks 1 to 10, and 1000 tests per day for weeks 11 to 52, '\
+              'enter 1,10,100,11,52,1000')
 
-        print('Example 2: If you can do 100 tests per day for week 1, 200 tests per day for week 2, '\
+        print('EXAMPLE 2: If you can do 100 tests per day for week 1, 200 tests per day for week 2, '\
               'and 1000 tests per day for weeks 3 to 52, enter 1,1,100,2,2,200,3,52,1000\n')
 
         a_c_str = input('Enter value here: ')
         print('\n')
         print("ENTER DECISION CHOICE FOR 'TESTING CAPACITY PER DAY FOR UNIVERSAL TESTING OF POPULATION' "\
-              'for weeks 1 through 52 as Start week1, end week1, decision1, Start week2, end week2, decision2……\n')
+              'for weeks 1 through 52 as Start week1, end week1, decision1, Start week2, end week2, decision2……')
 
-        print('Example 1: If you can do 100 tests per day for weeks 1 to 10, and 1000 tests per day for weeks 11 to 52, '\
-              'enter 1,10,100,11,52,1000\n')
+        print('EXAMPLE 1: If you can do 100 tests per day for weeks 1 to 10, and 1000 tests per day for weeks 11 to 52, '\
+              'enter 1,10,100,11,52,1000')
 
-        print('Example 2: If you can do 100 tests per day for week 1, 200 tests per day for week 2, '\
+        print('EXAMPLE 2: If you can do 100 tests per day for week 1, 200 tests per day for week 2, '\
               'and 1000 tests per day for weeks 3 to 52, enter 1,1,100,2,2,200,3,52,1000\n')
         a_u_str = input('Enter value here: ')
         print('\n')
