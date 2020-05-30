@@ -114,7 +114,7 @@ class output_var:
                         label = 'Actual unemployment rate')
         ax[0].set_title('Unemployment rate \n (Assumption: Assumption for unemployment rate under selected social distancing)')
         ax[0].set_xlim(left = pd.Timestamp(self.start_d) )
-        ax[0].set_ylabel('Rate (100%)')
+        ax[0].set_ylabel('Rate (%)')
         df.loc[df['Date']>= day].plot(x = 'Date', y = 'Wage loss', title = 'Wage loss per day', \
                                       use_index = True, ax = ax[1], legend = False, fontsize = 10,\
                                       marker= '.', linestyle = '--')
@@ -151,17 +151,17 @@ class output_var:
         df = pd.DataFrame(data = df_data.T, index = pd.date_range(start= self.start_d, \
                           periods= df_data.shape[1]), columns = df_name)
         
-        df.loc[self.decision_d:].plot(y = 'cost of universal testing', use_index = True, ax = ax[0], fontsize = 10)
-        df.loc[self.decision_d:].plot(y = 'cost of contact tracing', use_index = True, ax = ax[0], fontsize = 10)
-        df.plot(y = 'cost of symptom-based testing', use_index = True, ax = ax[0], fontsize = 10)
-        ax[0].set_ylabel("US dollars (in millions)")
-        ax[0].set_title("Cost of testing by type per day")
+        df.loc[self.decision_d:].plot(y = 'by universal testing', use_index = True, ax = ax[0], fontsize = 10)
+        df.loc[self.decision_d:].plot(y = 'by contact tracing', use_index = True, ax = ax[0], fontsize = 10)
+        df.plot(y = 'by symptom-based testing', use_index = True, ax = ax[0], fontsize = 10)
+        ax[0].set_title("Number of new diagnosis by testing type per day")
         ax[0].set_xlim(left = pd.Timestamp(self.start_d))
-
-        df.loc[self.decision_d:].plot(y = 'by universal testing', use_index = True, ax = ax[1], fontsize = 10)
-        df.loc[self.decision_d:].plot(y = 'by contact tracing', use_index = True, ax = ax[1], fontsize = 10)
-        df.plot(y = 'by symptom-based testing', use_index = True, ax = ax[1], fontsize = 10)
-        ax[1].set_title("Number of new diagnosis by testing type per day")
+        
+        df.loc[self.decision_d:].plot(y = 'cost of universal testing', use_index = True, ax = ax[1], fontsize = 10)
+        df.loc[self.decision_d:].plot(y = 'cost of contact tracing', use_index = True, ax = ax[1], fontsize = 10)
+        df.plot(y = 'cost of symptom-based testing', use_index = True, ax = ax[1], fontsize = 10)
+        ax[1].set_ylabel("US dollars (in millions)")
+        ax[1].set_title("Cost of testing by type per day")
         ax[1].set_xlim(left = pd.Timestamp(self.start_d))
 
         bbox = dict(boxstyle="round", fc="0.8")
