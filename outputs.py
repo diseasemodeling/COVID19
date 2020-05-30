@@ -183,7 +183,7 @@ class output_var:
         df_data = np.array([date, self.cumulative_inf, self.cumulative_hosp, self.cumulative_dead, \
                             self.num_diag_inf, self.num_undiag_inf])
         df_name = ['date', 'projected cumulative diagnosis', 'projected cumulative hospitalized',\
-                   'projected cumulative deaths', 'number infected, diagnosed', 'number infected, undiagnosed']
+                   'projected cumulative deaths', 'number of infected, diagnosed', 'number of infected, undiagnosed']
         
         df = pd.DataFrame(data = df_data.T, index = None, columns = df_name)
       
