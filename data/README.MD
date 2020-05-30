@@ -1,5 +1,5 @@
 # This folder contains data inputs used in model development. 
-### NOTE: These excel files are directly read into the model, do not change the format 
+### NOTE: These excel files are directly read into the model, you can modify the data for your use but do not change the format 
 # Navigation guide 
 1. COVID_input_parameters.xlsx
    - ParameterList: contains raw epidemiological and disease transmission parameters used in the model 
