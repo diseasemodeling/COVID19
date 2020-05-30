@@ -470,7 +470,7 @@ if  __name__ == "__main__":
         print('EXAMPLE 2: if you want weeks 1 to 5 to have 50'+'%'+' reduction, '\
               'weeks 6 to 10 to have 30'+'%'+' reduction,, and weeks 11 to 52 as 0'+'%'+' reduction,, '\
               'enter 1,5,0.5,6,10,0.3,11,52,0')
-        print('NOTE: The maximum contact reduction is ' + str(int(100)) +'%')
+        ##print('NOTE: The maximum contact reduction is ' + str(int(100)) +'%')
         a_sd_str = input('Enter value here: ')
         print('\n')
         print("ENTER DECISION CHOICE FOR 'CONTACT TRACING AND TESTING CAPACITY PER DAY'"\
