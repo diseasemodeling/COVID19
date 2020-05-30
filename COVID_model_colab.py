@@ -449,50 +449,50 @@ def run_COVID_sim(decision, path, verbose = 'Y', write = 'N'):
 if  __name__ == "__main__":
     path = os.getcwd()
     state = 'NY' # default is New York
-    print('Hi there, we are going to model New York State as a demonstration')
+    print('This is a model for State of New York')
     # state = input('insert two letter abbreviation for the State that you want to model (e.g.: NY for New York): ')  # insert two letter abbreviation state that you want to model
     setup_COVID_sim(state, path) 
-    print('Do you want to test a decision (Y or N)?\n')
+    print('Do you want to test a decision (Y or N)?')
     print('If you choose N (No), it will assume social distancing measures' \
           'as of May 3rd are maintained for the next 52 weeks,'\
           'and testing is only through baseline symptom-based testing, '\
-          'i.e., no contact tracing and testing, and no universal testing\n')
+          'i.e., no contact tracing and testing, and no universal testing')
     bol_ = 'N'
     bol_ = input('Enter Y or N: ')
     print('\n')
     if bol_ == 'Y' or bol_ =='y':
         print("Enter decision choice for social distancing as 'percent reduction in contacts compared to a normal pre-COVID situation' "\
               "for weeks 1 through 52 as Start week1," \
-              'end week1, decision1, Start week2, end week2, decision2,…….\n')
+              'end week1, decision1, Start week2, end week2, decision2,…….')
 
         print('Example 1: if you want week 1 to have 50'+'%'+' reduction, '\
-              'and weeks 2 to 52 to have 30' +'%'+' reduction, enter 1,1,0.5,2,52,0.3\n')
+              'and weeks 2 to 52 to have 30' +'%'+' reduction, enter 1,1,0.5,2,52,0.3')
 
         print('Example 2: if you want weeks 1 to 5 to have 50'+'%'+' reduction, '\
               'weeks 6 to 10 to have 30'+'%'+' reduction,, and weeks 11 to 52 as 0'+'%'+' reduction,, '\
-              'enter 1,5,0.5,6,10,0.3,11,52,0\n')
+              'enter 1,5,0.5,6,10,0.3,11,52,0')
         print('NOTE: The maximum contact reduction is ' + str(int(100)) +'%')
         a_sd_str = input('Enter value here: ')
         print('\n')
         print("Enter decision choice for 'contact tracing and testing capcity per day'"\
-              "for weeks 1 through 52 as Start week1, end week1, decision1, Start week2, end week2, decision2 ….\n")
+              "for weeks 1 through 52 as Start week1, end week1, decision1, Start week2, end week2, decision2 ….")
 
         print('Example 1: If you can do 100 tests per day for weeks 1 to 10, and 1000 tests per day for weeks 11 to 52, '\
-              'enter 1,10,100,11,52,1000\n')
+              'enter 1,10,100,11,52,1000')
 
         print('Example 2: If you can do 100 tests per day for week 1, 200 tests per day for week 2, '\
-              'and 1000 tests per day for weeks 3 to 52, enter 1,1,100,2,2,200,3,52,1000\n')
+              'and 1000 tests per day for weeks 3 to 52, enter 1,1,100,2,2,200,3,52,1000')
 
         a_c_str = input('Enter value here: ')
         print('\n')
         print("Enter decision choice for 'testing capacity per day for universal testing of population' "\
-              'for weeks 1 through 52 as Start week1, end week1, decision1, Start week2, end week2, decision2……\n')
+              'for weeks 1 through 52 as Start week1, end week1, decision1, Start week2, end week2, decision2……')
 
         print('Example 1: If you can do 100 tests per day for weeks 1 to 10, and 1000 tests per day for weeks 11 to 52, '\
-              'enter 1,10,100,11,52,1000\n')
+              'enter 1,10,100,11,52,1000')
 
         print('Example 2: If you can do 100 tests per day for week 1, 200 tests per day for week 2, '\
-              'and 1000 tests per day for weeks 3 to 52, enter 1,1,100,2,2,200,3,52,1000\n')
+              'and 1000 tests per day for weeks 3 to 52, enter 1,1,100,2,2,200,3,52,1000')
         a_u_str = input('Enter value here: ')
         print('\n')
         gv.decision = gv.get_decisions(a_sd_str,a_c_str,a_u_str,gv.T_max)
