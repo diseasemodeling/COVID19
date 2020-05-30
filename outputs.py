@@ -69,11 +69,11 @@ class output_var:
         
         ### plot figure: number of deaths VS vsl loss 
         fig, ax = plt.subplots(2, 1)
-        df.plot(y = 'Number of deaths', title = 'Number of new deaths', use_index = True, ax = ax[0], \
+        df.plot(y = 'Number of deaths', title = 'Number of new deaths per day', use_index = True, ax = ax[0], \
                 legend = False, fontsize = 10, color ='r')
-        df.plot(y = 'Value of statistical life-year (VSL) loss', title = 'Value of statistical life-year (VSL) loss', \
+        df.plot(y = 'Value of statistical life-year (VSL) loss', title = 'Value of statistical life-year (VSL) loss per day', \
                 use_index = True, ax = ax[1], legend = False, fontsize = 10)
-        ax[1].set_ylabel("Million dollars")
+        ax[1].set_ylabel("US dollars (in millions)")
         plt.subplots_adjust(hspace = 0.5)
 
         # create an arrow
@@ -113,13 +113,13 @@ class output_var:
                         y = 'Actual unemployment rate', ax = ax[0], fontsize = 10,marker= '.',\
                         label = 'Actual unemployment rate')
         ax[0].set_title('Unemployment rate \n (Assumption: Assumption for unemployment rate under selected social distancing)')
-        ax[0].set_xlim(left =pd.Timestamp(self.start_d) )
-        ax[0].set_ylabel('Rate')
-        df.loc[df['Date']>= day].plot(x = 'Date', y = 'Wage loss', title = 'Wage loss', \
+        ax[0].set_xlim(left = pd.Timestamp(self.start_d) )
+        ax[0].set_ylabel('Rate (100%)')
+        df.loc[df['Date']>= day].plot(x = 'Date', y = 'Wage loss', title = 'Wage loss per day', \
                                       use_index = True, ax = ax[1], legend = False, fontsize = 10,\
                                       marker= '.', linestyle = '--')
         
-        ax[1].set_ylabel("Million dollars")
+        ax[1].set_ylabel("US dollars (in millions)")
         ax[1].set_xlim(left =pd.Timestamp(self.start_d))
 
         # create an arrow
@@ -154,14 +154,14 @@ class output_var:
         df.loc[self.decision_d:].plot(y = 'cost of universal testing', use_index = True, ax = ax[0], fontsize = 10)
         df.loc[self.decision_d:].plot(y = 'cost of contact tracing', use_index = True, ax = ax[0], fontsize = 10)
         df.plot(y = 'cost of symptom-based testing', use_index = True, ax = ax[0], fontsize = 10)
-        ax[0].set_ylabel("Million dollars")
-        ax[0].set_title("Cost of testing by type")
+        ax[0].set_ylabel("US dollars (in millions)")
+        ax[0].set_title("Cost of testing by type per day")
         ax[0].set_xlim(left = pd.Timestamp(self.start_d))
 
         df.loc[self.decision_d:].plot(y = 'by universal testing', use_index = True, ax = ax[1], fontsize = 10)
         df.loc[self.decision_d:].plot(y = 'by contact tracing', use_index = True, ax = ax[1], fontsize = 10)
         df.plot(y = 'by symptom-based testing', use_index = True, ax = ax[1], fontsize = 10)
-        ax[1].set_title("Number of new diagnosis by testing type")
+        ax[1].set_title("Number of new diagnosis by testing type per day")
         ax[1].set_xlim(left = pd.Timestamp(self.start_d))
 
         bbox = dict(boxstyle="round", fc="0.8")
@@ -212,6 +212,7 @@ class output_var:
         fig3, ax3 = plt.subplots()
         df.plot(x = 'date', y = 'number of infected, diagnosed', fontsize = 10, ax = ax3)
         df.plot(x = 'date', y = 'number of infected, undiagnosed', fontsize = 10, ax = ax3)
+        plt.title("Number of people with infection")
         plt.savefig('7.png',dpi = self.dpi)
 
         df = df.set_index('date')
