@@ -455,7 +455,7 @@ if  __name__ == "__main__":
     print('If you choose N (No), it will assume social distancing measures' \
           'as of May 3rd are maintained for the next 52 weeks,'\
           'and testing is only through baseline symptom-based testing, '\
-          'i.e., no contact tracing and testing, and no universal testing\n')
+          'i.e., no contact tracing and testing, and no universal testing')
     bol_ = 'N'
     bol_ = input('Enter Y or N: ')
     print('\n')
@@ -469,7 +469,7 @@ if  __name__ == "__main__":
 
         print('EXAMPLE 2: if you want weeks 1 to 5 to have 50'+'%'+' reduction, '\
               'weeks 6 to 10 to have 30'+'%'+' reduction,, and weeks 11 to 52 as 0'+'%'+' reduction,, '\
-              'enter 1,5,0.5,6,10,0.3,11,52,0\n')
+              'enter 1,5,0.5,6,10,0.3,11,52,0')
         print('NOTE: The maximum contact reduction is ' + str(int(100)) +'%')
         a_sd_str = input('Enter value here: ')
         print('\n')
@@ -480,7 +480,7 @@ if  __name__ == "__main__":
               'enter 1,10,100,11,52,1000')
 
         print('EXAMPLE 2: If you can do 100 tests per day for week 1, 200 tests per day for week 2, '\
-              'and 1000 tests per day for weeks 3 to 52, enter 1,1,100,2,2,200,3,52,1000\n')
+              'and 1000 tests per day for weeks 3 to 52, enter 1,1,100,2,2,200,3,52,1000')
 
         a_c_str = input('Enter value here: ')
         print('\n')
@@ -491,7 +491,7 @@ if  __name__ == "__main__":
               'enter 1,10,100,11,52,1000')
 
         print('EXAMPLE 2: If you can do 100 tests per day for week 1, 200 tests per day for week 2, '\
-              'and 1000 tests per day for weeks 3 to 52, enter 1,1,100,2,2,200,3,52,1000\n')
+              'and 1000 tests per day for weeks 3 to 52, enter 1,1,100,2,2,200,3,52,1000')
         a_u_str = input('Enter value here: ')
         print('\n')
         gv.decision = gv.get_decisions(a_sd_str,a_c_str,a_u_str,gv.T_max)
@@ -501,8 +501,8 @@ if  __name__ == "__main__":
    
 
     print('Do you want to write results into excel file?')
-    print('NOTE: writing it takes a longer time to process\n')
-    print("NOTE: plots are automatically saved in the folder\n")
+    print('NOTE: writing it takes a longer time to process')
+    #print("NOTE: plots are automatically saved in the folder\n")
     write_ = 'N'
     write_ = input('Enter Y or N (e.g.: Y ): ')
     
