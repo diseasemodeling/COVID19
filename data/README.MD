@@ -8,10 +8,10 @@
    - Demographic data by State 
 3. RL_inputs.xlsx
    - Data for value of statistical life-year, 
-   - Unemployment rates under COVID-19,
-   - median wage of jobs affected by COVID-19,
-   - labor force under normal conditions, 
-   - unit costs of testing
+   - Unemployment rates under COVID-19 by State,
+   - Median wage of jobs affected by COVID-19,
+   - Labor force under normal conditions by State, 
+   - Unit costs of testing
 4. actual_valid_data.xlsx
    - Reported cases of epidemic 
 
