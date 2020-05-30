@@ -46,4 +46,4 @@ def merge_image():
     new_im.paste(im, (0,x_offset))
     x_offset += im.size[1]
 
-  new_im.save('test.png')
+  new_im.save('results.png')
