@@ -1,4 +1,4 @@
-# COVID19 Simulation model 
+# COVID-19 decision-analysis simulation model 
 This is an interactive simulaton tool to evaluate user-input options for social distancing, contact tracing and testing, and universal testing. 
 
 ## To run the simulation model: 
