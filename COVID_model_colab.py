@@ -500,7 +500,7 @@ if  __name__ == "__main__":
     else:
         gv.decision = gv.format_year(gv.decision_week, gv.T_max)
    
-    print("NOTE: plots are automatically saved in the folder\n")
+    #print("NOTE: plots are automatically saved in the folder\n")
     print('Do you want to write results into excel file?')
     #print('NOTE: writing it takes a longer time to process')
     write_ = 'N'
