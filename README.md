@@ -13,7 +13,7 @@ An interactive simulation tool for evaluating weekly changes in options for soci
  
    - [Model on GitHub](https://github.com/diseasemodeling/COVID19) 
    
-   - Methodology 
+   - [Methodology](Methodology.pdf) 
 
 ## Authors
 [Disease Modeling Lab, University of Massachusetts Amherst](https://blogs.umass.edu/chaitrag/chaitra-gopalappa/)
