@@ -7,7 +7,7 @@ An interactive simulation tool for evaluating weekly changes in options for soci
 
       [Run model (link)](https://colab.research.google.com/drive/1GXs3hBg68w23-Kv5GCFQI30KKRxsfyFP) 
       
-2. In Colab, click on 'Runtime-->Run all'. Follow instructions given by the model to enter decisons you would like to evaluate 
+2. In Google Colab, click on 'Runtime-->Run all'. Follow instructions given by the model to enter decisons you would like to evaluate 
    
 ## Model download and info
  
