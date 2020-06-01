@@ -463,7 +463,7 @@ if  __name__ == "__main__":
     if bol_ == 'Y' or bol_ =='y':
         print("Enter decision choice for social distancing as 'percent reduction in contacts compared to a normal pre-COVID situation' "\
               "for weeks 1 through 52 as Start week1," \
-              'end week1, decision1, Start week2, end week2, decision2,…….,and so on, for as many options as needed')
+              'end week1, decision1, Start week2, end week2, decision2,……,and so on, for as many options as you need')
 
         print('Example 1: if you want week 1 to have 50'+'%'+' reduction, '\
               'and weeks 2 to 52 to have 30' +'%'+' reduction, enter 1,1,0.5,2,52,0.3')
@@ -475,7 +475,7 @@ if  __name__ == "__main__":
         a_sd_str = input('Enter value here: ')
         print('\n')
         print("Enter decision choice for 'contact tracing and testing capcity per day'"\
-              "for weeks 1 through 52 as Start week1, end week1, decision1, Start week2, end week2, decision2 ….and so on, for as many options as needed")
+              "for weeks 1 through 52 as Start week1, end week1, decision1, Start week2, end week2, decision2,.…, and so on, for as many options as you need")
 
         print('Example 1: If you can do 100 tests per day for weeks 1 to 10, and 1000 tests per day for weeks 11 to 52, '\
               'enter 1,10,100,11,52,1000')
@@ -486,7 +486,7 @@ if  __name__ == "__main__":
         a_c_str = input('Enter value here: ')
         print('\n')
         print("Enter decision choice for 'testing capacity per day for universal testing of population' "\
-              'for weeks 1 through 52 as Start week1, end week1, decision1, Start week2, end week2, decision2……and so on, for as many options as needed')
+              'for weeks 1 through 52 as Start week1, end week1, decision1, Start week2, end week2, decision2, ……, and so on, for as many options as you need')
 
         print('Example 1: If you can do 100 tests per day for weeks 1 to 10, and 1000 tests per day for weeks 11 to 52, '\
               'enter 1,10,100,11,52,1000')
