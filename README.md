@@ -17,7 +17,7 @@ An interactive simulation tool for evaluating weekly changes in options for soci
    
    - [Sample scenario 1](figure/Scenario1.pdf)- Maximum contact reduction (only essential services open) 
    
-     [Sample scenario 2](figure/Scenario2.pdf)- Phasing out social distancing, while ocmbining with increased testing
+     [Sample scenario 2](figure/Scenario2.pdf)- Phasing out social distancing, while combining with increased testing
    
 
 ## Authors
