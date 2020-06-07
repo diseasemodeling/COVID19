@@ -15,7 +15,7 @@ An interactive simulation tool for evaluating weekly changes in options for soci
    
    - [Methodology](Methodology.pdf) 
    
-   - [Sample scenarios](figure/Scenario2.pdf) 
+   - [Sample scenario 1](figure/Scenario1.pdf) [Sample scenario 2](figure/Scenario2.pdf) 
    
 
 ## Authors
