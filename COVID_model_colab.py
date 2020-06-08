@@ -454,7 +454,7 @@ if  __name__ == "__main__":
     setup_COVID_sim(state, path) 
     print('Do you want to test a decision (Y or N)?')
     print('If you choose N (No), it will assume social distancing measures '\
-          'as of May 3rd are maintained for the next 52 weeks,'\
+          'as of today are maintained for the next 52 weeks,'\
           'and testing is only through baseline symptom-based testing, '\
           'i.e., no contact tracing and testing, and no universal testing')
     bol_ = 'N'
