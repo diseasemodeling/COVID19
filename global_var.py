@@ -118,7 +118,7 @@ def setup_global_variables(state, inv_dt1, T_max_, lead_time_, time_unit_, beta_
     
     prog_d = days_of_simul_pre_sd + days_of_simul_post_sd + T_max
     global prog_bar      # progress bar to show how long until the end of running code
-    prog_bar = IncrementalBar('Code In Progess: \t', max = prog_d + 1)
+    prog_bar = IncrementalBar('Code In Processing: \t', max = prog_d + 1)
 
     global actual_data 
     global acutal_unemp
