@@ -214,11 +214,14 @@ def read_sim_input(state, cwd):
     # The days before social distancing was introduced
     days_of_simul_pre_sd = (abs(d4 - d1).days)
 
-    # The days after social distancing was introduced 
-    days_of_simul_post_sd = (abs(d4 - d2).days)+1
-
     # The days when decision making begins
-    begin_simul_rl_date = str(valid_data_v[min(np.where(valid_data_v[:,2] > 0)[0]), 0])
+    begin_simul_rl_date = pd.Timestamp.today()
+    # begin_simul_rl_date = str(valid_data_v[min(np.where(valid_data_v[:,2] > 0)[0]), 0])
+
+    # The days after social distancing was introduced 
+    days_of_simul_post_sd = (abs(d4 - begin_simul_rl_date).days)+1
+
+    
 
     # beta for the State
     states_betas = pd.read_excel(excel4, sheet_name = 'Sheet1', index_col = 0)
@@ -282,13 +285,13 @@ def read_date(state, cwd):
     final_simul_start_date = valid_data_v[max(np.where(valid_data_v[:,2] > 0)[0]), 0]
     final_simul_start_date = str(final_simul_start_date)
     d1 = final_simul_start_date
-    begin_simul_rl_date = str(valid_data_v[min(np.where(valid_data_v[:,2] > 0)[0]), 0])
+    begin_simul_rl_date =  pd.Timestamp.today().date() 
     excel2= os.path.join(cwd,'data/COVID_input_parameters.xlsx')
     sd_date = pd.read_excel(excel2, sheet_name='sd_date') 
     sd_date_v = sd_date.values 
     sd_start_date_state = str(sd_date_v[np.where(sd_date_v == state)[0][0],1])
     d2 = sd_start_date_state
-    d3 = begin_simul_rl_date
+    d3 = str(begin_simul_rl_date)
 
     return d1, d2, d3 
 
