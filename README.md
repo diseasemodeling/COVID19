@@ -21,7 +21,11 @@ An interactive simulation tool for evaluating weekly changes in options for soci
    
 
 ## Authors
+Hanisha Tatapudi, Xinmeng Zhao, Sonza Singh, Shifali Bansal, Seyedeh Nazanin Khatami, and Chaitra Gopalappa, 
 [Disease Modeling Lab, University of Massachusetts Amherst](https://blogs.umass.edu/chaitrag/chaitra-gopalappa/)
-PLease contact the corresponding author for any questions, comments, or interests in collaborations
+
 Corresponding author contact: Dr. Chaitra Gopalappa; email: chaitrag@umass.edu 
+
+PLease contact the corresponding author for questions, comments, or interests in collaborations
+
 
