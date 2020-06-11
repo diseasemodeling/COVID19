@@ -1,4 +1,6 @@
 # COVID-19 simulation- An Interactive Tool for Analyses of Phased Reopening Decisions
+## This is Version 1, for [Version 2 go here](https://diseasemodeling.github.io/COVID19-v2/)
+
 ## About
 An interactive simulation tool for evaluating weekly changes in options for social distancing, contact tracing and testing, and universal testing, over a 52 week period - Application to the State of New York. 
 
