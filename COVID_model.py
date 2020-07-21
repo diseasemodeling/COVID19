@@ -202,7 +202,7 @@ class CovidModel():
         # rate of I -> Q_I
         self.rate_array[7] = self.a_b
         # rate of I -> R
-        self.rate_array[8] = ((self.a_u + (1-self.a_u)*self.a_c)) + 1/self.ir_days  
+        self.rate_array[8] = (1-self.a_b)*((self.a_u + (1-self.a_u)*self.a_c)) + 1/self.ir_days  
         # rate of Q_L -> Q_E
         self.rate_array[9] = 1/self.l_days
 
