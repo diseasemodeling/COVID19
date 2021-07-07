@@ -40,7 +40,7 @@ class CovidModel():
         self.symp_hospitalization = gv.symp_hospitalization_v              
         self.percent_dead_recover_days = gv.percent_dead_recover_days_v  
         self.init_pop_dist = gv.pop_dist_v                                 # initial population distribution 
-        self.tot_pop = np.sum(self.init_pop_dist)                          # total number of population by State
+        self.tot_pop = np.sum(self.init_pop_dist[:,1:3])                   # total number of population by State
         self.dry_run_end_diag = gv.dry_run_end_diag                        # after dry run, total number of diagnosis should match with data
         self.days_of_simul_pre_sd = gv.days_of_simul_pre_sd                # number of days before social distancing
         self.days_of_simul_post_sd = gv.days_of_simul_post_sd              # number of days after social distancing before the end of observed data
@@ -201,7 +201,7 @@ class CovidModel():
         # rate of I -> Q_I
         self.rate_array[7] = self.a_b
         # rate of I -> R
-        self.rate_array[8] = ((self.a_u + (1-self.a_u)*self.a_c)) + 1/self.ir_days  
+        self.rate_array[8] = (1-self.a_b)*((self.a_u + (1-self.a_u)*self.a_c)) + 1/self.ir_days
         # rate of Q_L -> Q_E
         self.rate_array[9] = 1/self.l_days
 
