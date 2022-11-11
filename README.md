@@ -22,7 +22,7 @@ An interactive simulation tool for evaluating weekly changes in options for soci
    
      [Sample scenario 2](figure/Scenario2.pdf)- Phasing out social distancing, while combining with increased testing
    
-### Access
+### Terms of use
 Shield: [![CC BY-NC-SA 4.0][cc-by-nc-sa-shield]][cc-by-nc-sa]
 
 This work is licensed under a
